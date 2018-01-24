@@ -72,9 +72,12 @@ mvn clean compile package -am -P profile_name -pl project_name -s ~/.m2/my-setti
 使用编译插件：maven-compiler-plugin:3.1编译所有源文件生成class文件至target\classes目录下
 #package
 根据pom.xml中的packing打包成对应的war包或jar包
-maven-resources-plugin
-maven-compiler-plugin
-maven-war-plugin
+maven-resources-plugin:2.6:resources
+maven-compiler-plugin:3.1:compile
+maven-resources-plugin:2.6:testResources  测试resources
+maven-compiler-plugin:3.1:testCompile   测试编译
+maven-surefire-plugin:2.12.4:test  测试区块
+maven-war-plugin  打包操作
 # -am
 多模块子项目时， 表示同时处理选定模块所依赖的模块
 # -P
