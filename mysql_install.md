@@ -125,8 +125,9 @@ pid-file=/var/run/mysqld/mysqld.pid
 EOF
 
 #初始化数据库
+```bash
 cd /usr/local/mysql
-mkdir /usr/local/mysql/logs&& mkdir /usr/local/mysql/temp
+mkdir /usr/local/mysql/logs&& mkdir /usr/local/mysql/temp && mkdir /usr/local/mysql/data
 chown -R mysql:mysql .
 
 * 注意：MySQL 5.7.6之前的版本执行这个脚本初始化系统数据库
@@ -162,4 +163,4 @@ shell> cd /opt/mysql-server
 shell> rm -f CMakeCache.txt
 shell> make clean
 
-
+```
