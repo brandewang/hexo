@@ -130,13 +130,9 @@ mkdir /usr/local/mysql/logs&& mkdir /usr/local/mysql/temp
 chown -R mysql:mysql .
 
 * 注意：MySQL 5.7.6之前的版本执行这个脚本初始化系统数据库
-./bin/mysql_install_db --user=mysql --basedir=/usr/local/mysql --
-
-datadir=/usr/local/mysql/data
+./bin/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data
 * 5.7.6之后版本初始系统数据库脚本（本文使用此方式初始化）
-./bin/mysqld --initialize-insecure --user=mysql --basedir=/usr/local/mysql --
-
-datadir=/usr/local/mysql/data
+./bin/mysqld --initialize-insecure --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data
 chown -R root .
 chown -R mysql data temp 
 chown mysql .
