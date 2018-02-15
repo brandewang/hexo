@@ -145,9 +145,7 @@ chown mysql .
 cp support-files/mysql.server /etc/init.d/mysqld
 
 #设置数据库密码
-/usr/local/mysql/bin/mysql -e "grant all privileges on *.* to 'root'@'localhost' 
-
-identified by 'fruit@123' with grant option;"
+/usr/local/mysql/bin/mysql -e "grant all privileges on *.* to 'root'@'localhost' identified by 'fruit@123' with grant option;"
 
 #配置mysql环境变量
 shell> vim /etc/profile
