@@ -96,7 +96,7 @@ key_buffer_size=256M
 read_buffer_size=1M
 read_rnd_buffer_size=16M
 bulk_insert_buffer_size=64M
-
+#设置表明不区分大小写
 lower_case_table_names=1
 
 default-storage-engine=INNODB

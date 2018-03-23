@@ -52,3 +52,5 @@ select * from information_shcema.innodb_locks\G
 #RDS需调用存储过程 
 CALL mysql.rds_kill('ID');
 ```
+## 设置表名不区分大小写
+lower_case_table_names = 1
