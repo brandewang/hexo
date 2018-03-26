@@ -54,6 +54,13 @@ cat > /etc/my.cnf <<EOF
 port=3306
 socket=/usr/local/mysql/mysql.sock
 [mysqld]
+#sql_mode 设置
+#宽松模式 not null 自动赋空
+sql_mode='NO_ENGINE_SUBSTITUTION'
+#严格模式
+#sql_mode='ONLY_FULL_GROUP_BY,NO_AUTO_VALUE_ON_ZERO,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,
+ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,PIPES_AS_CONCAT,ANSI_QUOTES'
+
 #字符集设
 log_timestamps = SYSTEM
 character-set-server=utf8
