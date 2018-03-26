@@ -54,6 +54,7 @@ cat > /etc/my.cnf <<EOF
 port=3306
 socket=/usr/local/mysql/mysql.sock
 [mysqld]
+#字符集设
 log_timestamps = SYSTEM
 character-set-server=utf8
 collation-server=utf8_general_ci
@@ -63,10 +64,23 @@ skip-name-resolve
 
 user=mysql
 port=3306
+
+#系统及日志时区设置
+system_time_zone=CST
+time_zone=SYSTEM
+log_timestamps=SYSTEM
+
+#binary log 设置
+#binlog-format=ROW
+log-bin=binlog/mysql-bin
+log-bin-index=binlog/mysql-bin.index
+max_binlog_size=512m
+binlog_cache_size=4m
+
+#数据及日志存放位置
 basedir=/usr/local/mysql
 datadir=/usr/local/mysql/data
 tmpdir=/usr/local/mysql/temp
-#server_id = .....
 socket=/usr/local/mysql/mysql.sock
 log-error=/usr/local/mysql/logs/mysql_error.log
 pid-file=/usr/local/mysql/mysql.pid
@@ -98,7 +112,7 @@ read_rnd_buffer_size=16M
 bulk_insert_buffer_size=64M
 #设置表明不区分大小写
 lower_case_table_names=1
-
+#默认数据库引擎
 default-storage-engine=INNODB
 
 innodb_purge_threads=1
@@ -110,6 +124,8 @@ innodb_log_files_in_group=3
 innodb_flush_log_at_trx_commit=2
 innodb_flush_method=O_DIRECT
 #thread_concurrency=32
+
+#慢查询设置
 long_query_time=2
 slow-query-log=on
 slow-query-log-file=/usr/local/mysql/logs/mysql-slow.log
