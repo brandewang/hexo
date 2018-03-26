@@ -70,12 +70,6 @@ system_time_zone=CST
 time_zone=SYSTEM
 log_timestamps=SYSTEM
 
-#binary log 设置
-#binlog-format=ROW
-log-bin=binlog/mysql-bin
-log-bin-index=binlog/mysql-bin.index
-max_binlog_size=512m
-binlog_cache_size=4m
 
 #数据及日志存放位置
 basedir=/usr/local/mysql
@@ -93,6 +87,15 @@ wait_timeout=604800
 #open_tables=600
 #table_cache = 650
 #opened_tables = 630
+
+#binary log 设置
+#binlog-format=ROW
+log-bin=binlog/mysql-bin
+log-bin-index=binlog/mysql-bin.index
+max_binlog_size=512m
+binlog_cache_size=4m
+
+
 
 max_allowed_packet=32M
 sort_buffer_size=4M
@@ -129,6 +132,14 @@ innodb_flush_method=O_DIRECT
 long_query_time=2
 slow-query-log=on
 slow-query-log-file=/usr/local/mysql/logs/mysql-slow.log
+
+#slave 从库设置
+#logs-slave-updates=1 开启后从库可写入bin log 来自主库的复制
+#read-only=1 普通用户只读
+#master-info-file=master.info
+#relay-log=relay/relay-bin
+#relay-log-index=relay/relay-bin.index
+#relay-log-info-file=relay/relay-log.info
 
 [mysqldump]
 quick

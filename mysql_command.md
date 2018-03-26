@@ -54,3 +54,25 @@ CALL mysql.rds_kill('ID');
 ```
 ## 设置表名不区分大小写
 lower_case_table_names = 1
+
+## 数据库readonly设置
+``` bash
+#普通用户设置只读
+set global read_only=1;
+#普通用户取消只读
+set global read_only=0;
+#全局表锁   保证数据不会发生变更 mysqldump前可设置
+flush tables with read lock;
+#解除全局锁
+unlock tables;
+```
+
+## mysqldump
+``` bash
+#--all-databases  导出所有数据库
+#--master-data=1  该选项将binlog的位置和文件名追加到输出文件中
+#--master-data=2  将位置和文件名添加注释，实际导入时需要手动输入master binlog 位置
+#--single-transaction  在导出数据之前提交一个BEGIN,BEGIN不会阻塞任何应用程序且能保证数据库一致性
+
+mysqldump -h $hostname -u$user -p$password --master-data=1 --all-databases --single-transaction > mysql.sql
+```
