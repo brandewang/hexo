@@ -99,8 +99,10 @@ wait_timeout=604800
 #binlog-format=ROW
 log-bin=binlog/mysql-bin
 log-bin-index=binlog/mysql-bin.index
-max_binlog_size=512m
+max_binlog_size=1g
 binlog_cache_size=4m
+#设置为1每次I/O写入磁盘，推荐为1，比较安全
+sync_binlog=1
 
 
 
@@ -147,6 +149,12 @@ slow-query-log-file=/usr/local/mysql/logs/mysql-slow.log
 #relay-log=relay/relay-bin
 #relay-log-index=relay/relay-bin.index
 #relay-log-info-file=relay/relay-log.info
+#当slave从库宕机后，假如relay-log损坏了,放弃原有的relay-log,重新从master上获取日志,保证了relay-log的完整性。默认情况下该功能是关闭的,建议开启。
+#relay_log_recovery=1
+#当设置为1 每次I/O都写入磁盘，设置为0由操作系统决定，建议默认不设置
+#sync_relay_log=
+#sync_relay_log_info=
+
 
 [mysqldump]
 quick
