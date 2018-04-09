@@ -31,8 +31,10 @@ interactive_timeout和wait_timeout：在连接空闲阶段（sleep）起作用
 net_read_timeout和net_write_timeout：则是在连接繁忙阶段（query）起作用。
 ```
 
-## 查询数据库大小
+## 查询实例大小&数据库大小
 ``` bash
+select concat(round(sum(DATA_LENGTH/1024/1024),2), 'MB') as data from information_schema.TABLES;
+
 select TABLE_SCHEMA, concat(truncate(sum(data_length)/1024/1024,2),' MB') as data_size,
 concat(truncate(sum(index_length)/1024/1024,2),'MB') as index_size
 from information_schema.tables
