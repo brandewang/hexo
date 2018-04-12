@@ -77,4 +77,39 @@ unlock tables;
 #--single-transaction  在导出数据之前提交一个BEGIN,BEGIN不会阻塞任何应用程序且能保证数据库一致性
 
 mysqldump -h $hostname -u$user -p$password --master-data=1 --all-databases --single-transaction > mysql.sql
+
+#dump 数据库实例的所有信息(除去mysql,sys,information_schema 和performance_schema数据库)
+mysql -uroot -pfruit@123 -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME NOT IN ('mysql', 'performance_schema', 'information_schema', 'sys')" | tr 'n' ' ' > /root/dbs-to-dump.sql
+#dump 数据库
+mysqldump --routines --events --single-transaction --databases $(cat /root/dbs-to-dump.sql) > /root/full-data-dump.sql
+#获取用户和权限信息. 该操作会备份所有用户的权限.
+wget percona.com/get/pt-show-grants
+yum install perl-DBD-MySQL
+#确保/var/lib/mysql/mysql.sock存在，可以使用ln -s创建软链,或使用--host=127.0.0.1 --port=3306
+ln -s /usr/local/mysql/mysqld.sock /var/lib/mysql/mysql.sock
+perl pt-show-grants --user=root --password=root --flush > /root/grants.sql
+
+#导入
+mysql -uroot < /root/grants.sql
+mysql -e "SET GLOBAL max_allowed_packet=1024*1024*1024";
+mysql -uroot -p --max-allowed-packet=1G < /root/full-data-dump.sql;
+
 ```
+
+## 查看数据库碎片& 整理碎片释放空间
+``` bash
+#Data_free 表示可回收的闲置空间
+show table status like table_name;
+
+#整理碎片 整理期间会锁表
+OPTIMIZE table table_name;
+
+#innoDB存储引擎 
+innoDB引擎的表分为独享表空间和同享表空间的表，我们可以通过show variables like ‘innodb_file_per_table’;来查看是否开启独享表空间。
+当开启独享表空间是无法对表进行optimize操作，会卡住很长时间并返回 Tables does not support optimize, doing recreate + analyze instead.
+#可以改用这条语句优化 相当于重建表 也会出现锁表
+ALTER TABLE yourdatabasename.yourtablename ENGINE='InnoDB';
+
+```
+
+
