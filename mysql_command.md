@@ -112,4 +112,9 @@ ALTER TABLE yourdatabasename.yourtablename ENGINE='InnoDB';
 
 ```
 
+### SQL
+``` bash
+#同一张表互换两列数据
+update product as a, product as b set a.original_price=b.price, a.price=b.original_price where a.id=b.id;
 
+```
