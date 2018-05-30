@@ -1,6 +1,6 @@
 ---
 title: elastic
-date: 2018-04-29 10:32
+date: 2088-08-08 08:08:08
 tags:
 ---
 # install elasticsearch cluster

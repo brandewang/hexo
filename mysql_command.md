@@ -1,8 +1,29 @@
 ---
 title: MYSQL_COMMAND
-date: 2018-03-23 09:50:38
+date: 2088-08-08 08:08:08
 tags:
 ---
+
+## MySQL修改root密码
+``` bash
+#1.用SET PASSWORD命令
+MySQL -u root
+　　mysql> SET PASSWORD FOR 'root'@'localhost' = PASSWORD('newpass');
+#2.用mysqladmin
+mysqladmin -u root password "newpass"
+#如果root已经设置过密码，采用如下方法
+mysqladmin -u root password oldpass "newpass"
+#3.用UPDATE直接编辑user表
+mysql -u root
+　mysql> use mysql;
+　mysql> UPDATE user SET Password = PASSWORD('newpass') WHERE user = 'root';
+　mysql> FLUSH PRIVILEGES;
+#4.在丢失root密码的时候，可以这样
+mysqld_safe --skip-grant-tables&
+　　mysql -u root mysql
+　　mysql> UPDATE user SET password=PASSWORD("new password") WHERE user='root';
+　　mysql> FLUSH PRIVILEGES;
+```
 
 ## 权限设置
 ``` bash

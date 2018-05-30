@@ -1,6 +1,6 @@
 ---
 title: system
-date: 2018-05-02 10:00
+date: 2088-08-08 08:08:08
 tags:
 ---
 # 持久化systemd-journal日志
