@@ -132,6 +132,40 @@ innoDB引擎的表分为独享表空间和同享表空间的表，我们可以�
 ALTER TABLE yourdatabasename.yourtablename ENGINE='InnoDB';
 
 ```
+#SQL对象收集
+``` bash
+#1.1查看所有视图
+SHOW FULL TABLES IN dms_sample WHERE TABLE_TYPE LIKE 'VIEW';     
+ 
+#1.2查看索引
+SELECT DISTINCT
+  TABLE_NAME,
+  INDEX_NAME
+FROM INFORMATION_SCHEMA.STATISTICS
+WHERE TABLE_SCHEMA = 'dms_sample';
+ 
+#1.3查看外键约束
+USE INFORMATION_SCHEMA;
+SELECT TABLE_NAME,
+       COLUMN_NAME,
+       CONSTRAINT_NAME,
+       REFERENCED_TABLE_NAME,
+       REFERENCED_COLUMN_NAME
+FROM KEY_COLUMN_USAGE
+WHERE TABLE_SCHEMA = "dms_sample"
+      AND REFERENCED_COLUMN_NAME IS NOT NULL;
+ 
+#1.4查看所有用户
+select host, user from mysql.user;
+ 
+#1.5查看所有触发器
+use dms_sample;
+show triggers;
+ 
+#1.6查看所有存储过程
+select name from mysql.proc where db = 'dms_sample' and type = 'PROCEDURE';
+```
+
 
 ### SQL
 ``` bash
