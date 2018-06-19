@@ -55,3 +55,58 @@ cat > /etc/td-agent/config.d/journal.conf << EOF
 </label>
 EOF
 ```
+
+# tail读取nginx_access日志,传输到elasticsearch
+``` bash
+cat > /etc/td-agent/config.d/pro.nginx.conf << EOF
+<label @ELASTIC>
+  #<filter **>
+  #  @type grep
+  #  <exclude>
+  #    key action
+  #    pattern ^logout$
+  #  </exclude>
+  #  @type record_transformer
+  #  <record>
+  #     hostname "#{Socket.gethostname}"
+  #  </record>
+  #</filter>
+  <match **>
+    @type elasticsearch
+    include_tag_key true
+    hosts 10.28.201.81:9200,10.28.201.82:9200,10.28.201.83:9200
+#覆盖index_name设置，格式#{logstash_prefix}-#{formated_date}
+    logstash_format true
+    logstash_prefix ${tag}
+#elasticsearch插件默认使用utc时间,设置为false则可使用本地正确时间
+    utc_index false
+    <buffer>
+      @type file
+      path /data/td-agent/prod.nginx.buffer
+      chunk_limit_size 8MB
+      total_limit_size 512MB
+      flush_mode interval
+      flush_interval 5s
+      overflow_action block
+      retry_type exponential_backoff
+      retry_forever true
+    </buffer>
+  </match>
+</label>
+
+<source>
+  @type tail
+  path /data/logs/nginx/access*.log
+  exclude_path ["/data/logs/nginx/access-test.log"]
+  pos_file /data/td-agent/prod.nginx.pos
+  tag prod.nginx.access
+  rotate_wait 20
+  <parse>
+    @type regexp
+    expression /^(?<request_time>[^\t]*)\t(?<upstream_response_time>[^\t]*)\t(?<remote_addr>[^\t]*)\t(?<request_length>[^\t]*)\t(?<upstream_addr>[^\t]*)\t(?<time_local>[^\t]*)\t(?<host>[^\t]*)\t(?<request>[^\t]*)\t(?<status>[^\t]*)\t(?<bytes_sent>[^\t]*)\t(?<http_referer>[^\t]*)\t(?<http_user_agent>[^\t]*)\t(?<gzip_ratio>[^\t]*)\t(?<http_x_forwarded_for>[^\t]*)\t(?<server_addr>[^\t]*)\t(?<server_port>[^\t]*)$/
+    time_key time_local
+    time_format %d/%b/%Y:%H:%M:%S %z
+  </parse>
+  @label @ELASTIC
+</source>
+```
