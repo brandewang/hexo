@@ -110,3 +110,60 @@ cat > /etc/td-agent/config.d/pro.nginx.conf << EOF
   @label @ELASTIC
 </source>
 ```
+
+# EFK+kafka
+``` bash
+#输入
+<label @ELASTIC>
+  <match **>
+    @type kafka
+    brokers 10.28.201.91:9092,10.28.201.92:9092,10.28.201.93:9093
+    default_topic brande.nginx.access
+    output_data_type json
+    output_include_tag true
+    output_include_time true
+  </match>
+</label>
+<source>
+  @type tail
+  path /var/log/nginx/access*.log
+  exclude_path ["/var/log/nginx/access-test.log"]
+  pos_file /data/td-agent/prod.nginx.pos
+  tag brande.nginx.access
+  rotate_wait 20
+  <parse>
+    @type regexp
+    expression /^(?<request_time>[^\t]*)\t(?<upstream_response_time>[^\t]*)\t(?<remote_addr>[^\t]*)\t(?<request_length>[^\t]*)\t(?<upstream_addr>[^\t]*)\t(?<time_local>[^\t]*)\t(?<host>[^\t]*)\t(?<request>[^\t]*)\t(?<request_body>[^\t]*)\t(?<status>[^\t]*)\t(?<bytes_sent>[^\t]*)\t(?<http_referer>[^\t]*)\t(?<http_user_agent>[^\t]*)\t(?<gzip_ratio>[^\t]*)\t(?<http_x_forwarded_for>[^\t]*)\t(?<server_addr>[^\t]*)\t(?<server_port>[^\t]*)$/
+    time_key time_local
+    time_format %d/%b/%Y:%H:%M:%S %z
+  </parse>
+  @label @ELASTIC
+</source>
+
+#输出
+<source>
+  @type kafka
+  format json
+  brokers 10.28.201.91:9092,10.28.201.92:9092,10.28.201.93:9092
+  topics brande.nginx.access
+  offset_zookeeper    10.28.201.91:2181,10.28.201.92:2181,10.28.201.93:2181
+#在zookeeper中记录topics的偏移
+  #offset_zk_root_node <offset path in zookeeper> default => '/fluent-plugin-kafka'
+  @label @ELASTIC
+</source>
+
+<label @ELASTIC>
+  <match  **>
+    @type elasticsearch
+    include_tag_key true
+    hosts 10.28.201.81:9200,10.28.201.82:9200,10.28.201.83:9200
+    logstash_format true
+    logstash_prefix ${tag}
+    logstash_dateformat %Y.%m.%d-%H
+    utc_index false
+  </match>
+</label>
+
+```
+
+
