@@ -167,3 +167,46 @@ cat > /etc/td-agent/config.d/pro.nginx.conf << EOF
 ```
 
 
+# java应用日志
+``` bash
+<label @JAVA>
+  <match **>
+    @type elasticsearch
+    include_tag_key true
+    hosts 10.28.201.81:9200,10.28.201.82:9200,10.28.201.83:9200
+    logstash_format true
+    logstash_prefix ${tag}
+    utc_index false
+    <buffer>
+      @type file
+      path /data/td-agent/prod.java.buffer
+      chunk_limit_size 8MB
+      total_limit_size 512MB
+      flush_mode interval
+      flush_interval 5s
+      overflow_action block
+      retry_type exponential_backoff
+      retry_forever true
+    </buffer>
+  </match>
+</label>
+
+
+<source>
+  @type tail
+  path /data/logs/all-tomcat-logs/brande01/catalina.out
+  exclude_path ["/data/logs/nginx/access-test.log"]
+  pos_file /data/td-agent/prod.java.pos
+  tag prod.java.brande01
+  rotate_wait 20
+  <parse>
+    @type regexp
+    expression /^(?<logtime>\d{2}-\w{3}-\d{4} \d{2}:\d{2}:\d{2}[^ ]*) (?<state>[^ ]*) (?<message>.*)$/
+#由于应用日志需要以先后区分，设置timekey丢失毫秒
+    #time_key logtime
+    #time_format %d-%b-%Y %H:%M:%S
+  </parse>
+  @label @JAVA
+</source>
+
+```
