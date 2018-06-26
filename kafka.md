@@ -39,5 +39,8 @@ bin/kafka-manager -Dconfig.file=conf/application.conf -Dhttp.port=8080
 ./kafka-topics.sh --describe --zookeeper localhost:2181 --topic brande.nginx.access
 #模拟生成消费者
 /kafka-console-consumer.sh --zookeeper localhost:2181 --topic brande.nginx.access --from-beginning
-
+#查看topic最大值
+./kafka-run-class.sh kafka.tools.GetOffsetShell --topic brande.nginx.access --time -1 --broker-list localhost:9092 --partitions 0
+#查看topic最小值
+./kafka-run-class.sh kafka.tools.GetOffsetShell --topic brande.nginx.access --time -2 --broker-list localhost:9092 --partitions 0
 ```

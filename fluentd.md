@@ -210,3 +210,70 @@ cat > /etc/td-agent/config.d/pro.nginx.conf << EOF
 </source>
 
 ```
+
+# 多java应用日志获取
+``` bahs
+<label @JAVA>
+  <filter **>
+    @type record_transformer
+    <record>
+      service_name ${tag_parts[5]}
+    </record>
+  </filter>
+  <match **>
+    @type elasticsearch
+    include_tag_key true
+    hosts 10.28.201.81:9200,10.28.201.82:9200,10.28.201.83:9200
+    logstash_format true
+    logstash_prefix prod.java
+    utc_index false
+    <buffer>
+      @type file
+      path /data/td-agent/prod.java.buffer
+      chunk_limit_size 8MB
+      total_limit_size 512MB
+      flush_mode interval
+      flush_interval 5s
+      overflow_action block
+      retry_type exponential_backoff
+      retry_forever true
+    </buffer>
+  </match>
+</label>
+
+
+#tomcat
+<source>
+  @type tail
+  path /data/logs/all-tomcat-logs/brande*/catalina.out
+  #exclude_path ["/data/logs/nginx/access-test.log"]
+  pos_file /data/td-agent/prod.java.tomcat.pos
+  tag prod.java.*
+  rotate_wait 20
+  <parse>
+    @type regexp
+    expression /^(?<logtime>\d{2}-\w{3}-\d{4} \d{2}:\d{2}:\d{2}[^ ]*) (?<state>[^ ]*) (?<message>.*)$/
+    time_key logtime
+    time_format %d-%b-%Y %H:%M:%S.%N
+  </parse>
+  @label @JAVA
+</source>
+
+#springboot
+<source>
+  @type tail
+  path /data/logs/all-tomcat-logs/brande*/start.log
+  #exclude_path ["/data/logs/nginx/access-test.log"]
+  pos_file /data/td-agent/prod.java.springboot.pos
+  tag prod.java.*
+  rotate_wait 20
+  <parse>
+    @type regexp
+    expression /^(?<logtime>\d{4}-\w{2}-\d{2} \d{2}:\d{2}:\d{2}[^ ]*)[ ]*(?<state>[^ ]*) (?<message>.*)$/
+    time_key logtime
+    time_format %Y-%m-%d %H:%M:%S.%N
+  </parse>
+  @label @JAVA
+</source>
+
+```
