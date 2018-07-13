@@ -13,7 +13,7 @@ Real server2:(eth0 192.168.0.28 vip lo:0 192.168.0.38)
 # director
 yum install -y ipvsadm
 
-echo > /home/www/publish-shell/lvs_dr.sh <EOF
+cat > /home/www/publish-shell/lvs_dr.sh <EOF
 echo 1 > /proc/sys/net/ipv4/ip_forward
 ipv=/sbin/ipvsadm
 vip=192.168.0.38
@@ -30,7 +30,7 @@ EOF
 bash /home/www/publish-shell/lvs_dr.sh
 
 # rs
-echo > /home/www/publish-shell/lvs_dr_rs.sh <EOF
+cat > /home/www/publish-shell/lvs_dr_rs.sh <EOF
 #! /bin/bash
 vip=192.168.0.38
 ifconfig lo:0 $vip broadcast $vip netmask 255.255.255.255 up
@@ -58,7 +58,7 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 #state MASTER -> state BACKUP
 #priority 100 -> priority 90
 
-echo > /etc/keepalived/keepalived.conf << EOF
+cat > /etc/keepalived/keepalived.conf << EOF
 vrrp_instance VI_1 {
     state MASTER
     interface eth0

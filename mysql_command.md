@@ -31,6 +31,31 @@ grant all privileges on *.* to 'root'@'localhost' identified by 'fruit@123' with
 flush privileges;
 ```
 
+## 日志清理
+``` bash
+#什么时候会清理过期日志，每次进行LOG flush 时会自动删除过期日志，触发log flush:
+1. 重启MYSQL
+2. bin-log文件大小打到参数max_binlog_size限制
+3. 手动执行清理命令
+
+#自动清理
+#设置超过7天的日志自动删除
+vim my.conf
+expire_logs_days =7 
+
+#手动清理
+#如果没有主从,可以通过下面的命令重置数据库日志，清除之前的日志文件
+reset master
+#如果存在复制关系，可以通过PURGE来清理：
+mysql -uroot -p
+#清除某个bin-log
+purge master logs to 'mysql-bin.010'
+#清除某个时间之前的日志
+purge master logs before '2016-02-28 13:00:00'
+#清除3天前的日志
+purge master logs before date_sub(now(), inverval 3 day); 
+```
+
 ## 临时设置外键失效
 ``` bash
 SET FOREIGN_KEY_CHECKS = 0; 
