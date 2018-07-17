@@ -8,6 +8,7 @@ tags:
 # install
 yum install bind*
 # 修改bind配置文件
+-----master------
 vim /etc/named.conf
 #添加局域网监听地址，添加允许查询地址段，设置转发即使存在zone . 也不使用
 listen-on port 53 { 127.0.0.1;10.28.50.6 };
@@ -16,6 +17,10 @@ forward only;
     forwarders {
     202.96.209.133;
  };
+#设置允许复制的slave的ip，不允许则为none
+allow-transfer  { 10.28.20.61; };
+
+
 #确认include此文件
 include "/etc/named.rfc1912.zones";
 
@@ -26,23 +31,41 @@ zone "cephcookbook.com" IN {
     type master;
     file "db.cephcookbook.com";
     allow-update { none; };
+    allow-transfer { 10.28.20.61;};
 };
 
 #vim /var/named/db.cephcookbook.com
 $TTL 86400
 @ IN SOA cephcookbook.com. root.cephcookbook.com. (
 20180704 ; serial
-28800 ; refresh
-14400 ; retry
-3600000 ; expire
-86400 ) ; minimum
+3H ; refresh
+15M ; retry
+1W ; expire
+1D ) ; minimum
 @ IN NS cephcookbook.com.
 @ IN A 10.28.50.6
+#设置slave NS记录
+@ IN NS slave
+slave IN A 10.28.20.61
+#这里的10为MX的权重
+@ IN MX 10 mail
 
 
 * IN A 10.28.201.61
 brande IN A 10.28.201.62
 angel IN CNAME brande
+mail IN A 10.28.201.63
+
+-----slave------
+#为slave 写入zone信息,重启服务后将自动生成 file, file类型需设置text, 否则可能会造成乱码
+vim /etc/named.rfc1912.zones
+zone "cephcookbook.com" IN {
+        type slave;
+        file "slaves/db.cephcookbook.com";
+        masterfile-format text;
+        masters { 10.28.50.6;};
+};
+
 ```
 
 
