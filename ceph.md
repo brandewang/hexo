@@ -65,3 +65,29 @@ ceph osd rm osd.2
 #删除osd相关权限
 ceph auth delete osd.2
 ```
+#radosgw
+```
+#进入ceph-cluster工作目录，将brande-ceph01添加为rgw节点
+ceph-deploy rgw create brande-ceph01
+#创建s3用户
+radosgw-admin user create --uid="testuser" --display-name="First User"
+#获取用户信息
+radosgw-admin user info --uid="testuser"
+
+##访问验证
+#安装s3cmd
+yum install -y s3cmd
+#创建配置文件
+vim ~/.s3.cfg
+[default]
+access_key = GV49CWE0UK5VMMILO0E6
+host_base = rgw-node1.cephcookbook.com:7480
+host_bucket = rgw-node1.cephcookbook.com:7480/%(bucket)
+secret_key = mQlkSLmTjY9WOudjYaDQoqIaAVrTCZncSQdCKPAu
+use_https = False
+
+#创建一个s3桶
+s3cmd mb s3://first-bucket
+#删除一个s3桶
+s3cmd rb s3://first-bucket
+```

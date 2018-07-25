@@ -157,7 +157,59 @@ innoDB引擎的表分为独享表空间和同享表空间的表，我们可以�
 ALTER TABLE yourdatabasename.yourtablename ENGINE='InnoDB';
 
 ```
-#SQL对象收集
+
+## mysql binlog
+``` bash
+#mysql中查看binlog
+1.获取binlog文件列表
+mysql> show binary logs;
+2.查看当前正在写入的binlog文件
+mysql> show master status;
+3.查看指定binlog文件的内容语法：
+mysql> SHOW BINLOG EVENTS [IN 'log_name'] [FROM pos] [LIMIT [offset,] row_count]
+mysql> SHOW BINLOG EVENTS IN 'mysql-bin.000005' \G
+mysql> SHOW BINLOG EVENTS IN 'mysql-bin.000005' FROM 194 LIMIT 2 \G;
+
+#mysqlbinlog 使用
+a、提取指定的binlog日志  
+# mysqlbinlog /opt/data/APP01bin.000001  
+# mysqlbinlog /opt/data/APP01bin.000001|grep insert  
+/*!40019 SET @@session.max_insert_delayed_threads=0*/;  
+insert into tb values(2,'jack')  
+  
+b、提取指定position位置的binlog日志  
+# mysqlbinlog --start-position="120" --stop-position="332" /opt/data/APP01bin.000001  
+  
+c、提取指定position位置的binlog日志并输出到压缩文件  
+# mysqlbinlog --start-position="120" --stop-position="332" /opt/data/APP01bin.000001 |gzip >extra_01.sql.gz  
+  
+d、提取指定position位置的binlog日志导入数据库  
+# mysqlbinlog --start-position="120" --stop-position="332" /opt/data/APP01bin.000001 | mysql -uroot -p  
+  
+e、提取指定开始时间的binlog并输出到日志文件  
+# mysqlbinlog --start-datetime="2014-12-15 20:15:23" /opt/data/APP01bin.000002 --result-file=extra02.sql  
+  
+f、提取指定位置的多个binlog日志文件  
+# mysqlbinlog --start-position="120" --stop-position="332" /opt/data/APP01bin.000001 /opt/data/APP01bin.000002|more  
+  
+g、提取指定数据库binlog并转换字符集到UTF8  
+# mysqlbinlog --database=test --set-charset=utf8 /opt/data/APP01bin.000001 /opt/data/APP01bin.000002 >test.sql  
+  
+h、远程提取日志，指定结束时间   
+# mysqlbinlog -urobin -p -h192.168.1.116 -P3306 --stop-datetime="2014-12-15 20:30:23" --read-from-remote-server mysql-bin.000033 |more  
+  
+i、远程提取使用row格式的binlog日志并输出到本地文件  
+# mysqlbinlog -urobin -p -P3606 -h192.168.1.177 --read-from-remote-server -vv inst3606bin.000005 >row.sql  
+
+
+# RDS日志提取
+#--to-last-log 到最后一个binlog日志
+#--result-file output文件
+mysqlbinlog  --read-from-remote-server --host=127.0.0.1 --port=3306  --user root --password   --to-last-log  --result-file=/tmp/xx mysql-bin.000001
+
+```
+
+## SQL对象收集
 ``` bash
 #1.1查看所有视图
 SHOW FULL TABLES IN dms_sample WHERE TABLE_TYPE LIKE 'VIEW';     
