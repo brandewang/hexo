@@ -77,7 +77,7 @@ interactive_timeout和wait_timeout：在连接空闲阶段（sleep）起作用
 net_read_timeout和net_write_timeout：则是在连接繁忙阶段（query）起作用。
 ```
 
-## 查询实例大小&数据库大小
+## 查询实例大小&数据库大小&表大小
 ``` bash
 select concat(round(sum(DATA_LENGTH/1024/1024),2), 'MB') as data from information_schema.TABLES;
 
@@ -86,6 +86,8 @@ concat(truncate(sum(index_length)/1024/1024,2),'MB') as index_size
 from information_schema.tables
 group by TABLE_SCHEMA
 order by data_length desc;
+
+select table_schema,table_name,engine,table_rows,data_length+index_length length,DATA_FREE from information_schema.tables where engine='InnoDB' and DATA_FREE!=0;
 ```
 
 ## 死锁处理
