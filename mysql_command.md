@@ -23,6 +23,20 @@ mysqld_safe --skip-grant-tables&
 　　mysql -u root mysql
 　　mysql> UPDATE user SET password=PASSWORD("new password") WHERE user='root';
 　　mysql> FLUSH PRIVILEGES;
+
+#5.7+ version
+systemctl stop mysqld
+systemctl set-environment MYSQLD_OPTS=”–skip-grant-tables”
+systemctl start mysqld
+mysql -u root
+mysql> UPDATE mysql.user SET authentication_string = PASSWORD(‘MyNewPassword’) WHERE User = ‘root’ AND Host = ‘localhost’; 
+mysql> FLUSH PRIVILEGES; 
+mysql> quit
+systemctl stop mysqld
+systemctl unset-environment MYSQLD_OPTS
+systemctl start mysqld
+echo 'validate_password_policy=0' >> /etc/my.cnf
+ALTER USER testuser IDENTIFIED BY '123456';
 ```
 
 ## 权限设置
