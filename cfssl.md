@@ -15,6 +15,7 @@ cfssl print-defaults csr > csr.json
 cp config.json ca-config.json
 cp csr.json ca-csr.json
 
+#modify csr
 cat ca-csr.json
 {
     "key": {
@@ -32,4 +33,32 @@ cat ca-csr.json
     ]
 }
 cfssl gencert -initca ca-csr.json |cfssljson -bare ca
+
+#Generate harbor cert
+cp csr.json harbor-csr.json
+#modify csr
+cat > harbor-csr.json <<EOF
+{
+  "CN": "harbor",
+  "hosts": [
+    "127.0.0.1",
+    "$NODE_IP"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+EOF
+#generate harbor cert
+cfssl gencert -ca=ca.pem   -ca-key=ca-key.pem   -config=ca-config.json -profile=client harbor-csr.json| cfssljson -bare harbor
 ```
