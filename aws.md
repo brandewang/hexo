@@ -61,3 +61,13 @@ curl -o ${file} -X GET \
   -H "Content-Type: ${contentType}" \
   -H "Authorization: AWS ${s3Key}:${signature}" "http://${bucket}.${url}/${objname}"
 ```
+
+#s3cmd
+``` bash
+vim ~/.s3.cfg
+bucket_location = cn-north-1
+host_base = s3.cn-north-1.amazonaws.com.cn
+host_bucket = %(bucket)s.s3.cn-north-1.amazonaws.com.cn
+website_endpoint = http://%(bucket)s.s3-website-%(location)s.amazonaws.com.cn/
+
+```
