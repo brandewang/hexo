@@ -60,10 +60,10 @@ curl -o ${file} -X GET \
   -H "Date: ${dateValue}" \
   -H "Content-Type: ${contentType}" \
   -H "Authorization: AWS ${s3Key}:${signature}" "http://${bucket}.${url}/${objname}"
-```
+
 
 #s3cmd
-``` bash
+
 vim ~/.s3.cfg
 bucket_location = cn-north-1
 host_base = s3.cn-north-1.amazonaws.com.cn
