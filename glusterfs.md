@@ -62,7 +62,7 @@ volume replace-brick <VOLNAME> <SOURCE-BRICK> <NEW-BRICK> {commit force}
 #客户端链接
 1.安装
 yum install glusterfs glusterfs-fuse attr -y
-2.glusterfs方式挂载
+2.glusterfs方式挂载(默认支持高可用)
 mount -t glusterfs node2:vol1 /mnt/vol1
 3.nfs方式挂载
 #打开卷nfs
