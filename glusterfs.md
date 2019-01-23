@@ -60,6 +60,7 @@ $gluster volume remove-brick mamm-volume [repl <count>] brick1...
 volume replace-brick <VOLNAME> <SOURCE-BRICK> <NEW-BRICK> {commit force}
 
 #客户端链接
+#注意/etc/hosts必须进行配置与gluster集群一致
 1.安装
 yum install glusterfs glusterfs-fuse attr -y
 2.glusterfs方式挂载(默认支持高可用)
