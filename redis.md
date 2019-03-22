@@ -14,6 +14,8 @@ redis-cli select number
 redis-cli type key
 #查找键
 redis-cli keys name*
+#查看TTL
+redis-cli ttl key
 #删除键
 redis-cli del key
 redis-cli keys name*|xargs redis-cli del
