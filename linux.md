@@ -1,5 +1,5 @@
 ---
-title: system
+title: linux
 date: 2088-08-08 08:08:08
 tags:
 ---
@@ -39,6 +39,6 @@ lostpk=`timeout 5  ping -q -s 500 202.96.209.133 -W 1000 -c 100 -A |grep transmi
 #总耗时
 rrt=`timeout 5  ping -q -s 500 202.96.209.133 -W 1000 -c 100 -A |grep transmitted|awk '{print $10}'`
 
-#bash调试模式并加入时间戳，调试默认通道为stderr
-bash -x  test.sh 2>&1 |while read -r line; do echo "$(date +'%H:%M:%S') $line"; done
+#bash调试模式并加入时间戳，调试默认通道为stderr,加入IFS可以保留stdin的头尾空格
+bash -x  test.sh 2>&1 |while IFS= read -r line; do echo "$(date +'%H:%M:%S') $line"; done
 ```

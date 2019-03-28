@@ -212,11 +212,12 @@ cat > /etc/td-agent/config.d/pro.nginx.conf << EOF
 ```
 
 # 多java应用日志获取
-``` bahs
+``` bash
 <label @JAVA>
   <filter **>
     @type record_transformer
     <record>
+      hostname "#{Socket.gethostname}"
       service_name ${tag_parts[5]}
     </record>
   </filter>
@@ -251,8 +252,11 @@ cat > /etc/td-agent/config.d/pro.nginx.conf << EOF
   tag prod.java.*
   rotate_wait 20
   <parse>
-    @type regexp
-    expression /^(?<logtime>\d{2}-\w{3}-\d{4} \d{2}:\d{2}:\d{2}[^ ]*) (?<state>[^ ]*) (?<message>.*)$/
+    #@type regexp
+    #expression /^(?<logtime>\d{2}-\w{3}-\d{4} \d{2}:\d{2}:\d{2}[^ ]*) (?<state>[^ ]*) (?<message>.*)$/
+    @type multiline
+    format_firstline /\d{2}-\w{3}-\d{4}/
+    format1 /^(?<logtime>\d{2}-\w{3}-\d{4} \d{2}:\d{2}:\d{2}[^ ]*) (?<state>[^ ]*) (?<message>.*)$/
     time_key logtime
     time_format %d-%b-%Y %H:%M:%S.%N
   </parse>
@@ -268,10 +272,13 @@ cat > /etc/td-agent/config.d/pro.nginx.conf << EOF
   tag prod.java.*
   rotate_wait 20
   <parse>
-    @type regexp
-    expression /^(?<logtime>\d{4}-\w{2}-\d{2} \d{2}:\d{2}:\d{2}[^ ]*)[ ]*(?<state>[^ ]*) (?<message>.*)$/
+    #@type regexp
+    #expression /^(?<logtime>\d{4}-\w{2}-\d{2} \d{2}:\d{2}:\d{2}[^ ]*)[ ]*(?<state>[^ ]*) (?<message>.*)$/
+    @type multiline
+    format_firstline /\d{4}-\w{2}-\d{2}/
+    format1 /^(?<logtime>\d{4}-\w{2}-\d{2} \d{2}:\d{2}:\d{2}[^ ]*)[ ]*(?<level>[^ ]*)[ ]*(?<thread>[^ ]*) (?<message>.*)$/
     time_key logtime
-    time_format %Y-%m-%d %H:%M:%S.%N
+    time_format %Y-%m-%d %H:%M:%S
   </parse>
   @label @JAVA
 </source>
