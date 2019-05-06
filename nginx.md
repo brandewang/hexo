@@ -140,6 +140,10 @@ http {
             root   html;
             index  index.html index.htm;
         }
+        location  /test {
+            default_type    application/json;
+            return 502 '{"status":502,"msg":"服务正在升级，请稍后再试……"}';
+        }
     }
 ##### white iplist #####
 #    geo $white {
