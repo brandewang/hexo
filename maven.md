@@ -50,6 +50,10 @@ Maven有三套相互独立的生命周期，分别是clean、default和site。�
 
 调用clean生命周期的clean阶段和default的install阶段，实际执行pre-clean和clean，install以及之前所有阶段
 
+4、mvn dependency:tree
+
+可以加-s setting.xml ，主要用来排查编译错误，依赖包版本问题
+
 #MAVEN 坐标GAV
 groupId
 artifactId
