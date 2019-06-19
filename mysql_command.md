@@ -143,7 +143,12 @@ mysqldump -h $hostname -u$user -p$password --master-data=1 --all-databases --sin
 #dump 数据库实例的所有信息(除去mysql,sys,information_schema 和performance_schema数据库)
 mysql -uroot -pfruit@123 -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME NOT IN ('mysql', 'performance_schema', 'information_schema', 'sys')" | tr 'n' ' ' > /root/dbs-to-dump.sql
 #dump 数据库
-mysqldump --routines --events --single-transaction --databases $(cat /root/dbs-to-dump.sql) > /root/full-data-dump.sql
+mysqldump --routines --events --lock-all-tables --databases $(cat /root/dbs-to-dump.sql) > /root/full-data-dump.sql
+#不导出gtid(用于主从同步)可加入该参数 --set-gtid-purged=off
+#锁定全表 --lock-all-tables (允许中断时使用 锁住方式类似 flush tables with read lock 的全局锁)
+#使用事务保证一致性 --single-transaction (不允许中断时使用)
+
+  
 #获取用户和权限信息. 该操作会备份所有用户的权限.
 wget percona.com/get/pt-show-grants
 yum install perl-DBD-MySQL
