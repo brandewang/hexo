@@ -25,6 +25,21 @@ export PATH=${JAVA_HOME}/bin:$PATH
 
 ```
 
+## 安装vim8.0
+
+``` bash
+# vim8.0通过filetype plugin 判断python文件解决制表符问题
+# python文件编写优先使用空格
+# 卸载老的vim
+yum remove vim-* -y
+# 下载第三方yum源
+wget -P /etc/yum.repos.d/  https://copr.fedorainfracloud.org/coprs/lbiaggi/vim80-ligatures/repo/epel-7/lbiaggi-vim80-ligatures-epel-7.repo
+# install vim
+yum  install vim-enhanced sudo -y
+# 验证vim版本
+rpm -qa |grep vim
+```
+
 
 ## 常用命令
 
