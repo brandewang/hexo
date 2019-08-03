@@ -44,6 +44,8 @@ su - gitlab-psql
 psql -h /var/opt/gitlab/postgresql -d gitlabhq_production
 
 #2.SSH服务无法使用dss秘钥登录，修改对应sshd配置文件，并重载服务
+vim /etc/sshd/sshd_config
+PubkeyAcceptedKeyTypes=+ssh-dss
 #查找进程及配置文件
 ps -ef|grep sshd
 #重载配置文件
