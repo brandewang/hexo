@@ -32,4 +32,28 @@ systemd restart docker
 docker login -u admin -p Harbor123451 10.28.50.6
 #推送镜像至harbor(镜像创建时docker build -t 需满足命名规则)
 docker push 10.28.50.6/oms/app01:latest #10.28.50.6为harbor oms为仓库名 app01:latest为项目名:short_id(commit)
+#k8s登录信息设置
+#从docker客户端提取
+cat > config <<EOF
+{
+	"auths": {
+		"10.28.50.20": {
+			"auth": "aGFyYm9yOkhhcmJvckAxMjM="
+		}
+	}
+}
+EOF
+#获取base64码
+cat config.json |base64 -w 0
+#创建yaml文件
+cat > docker-secret.yaml << EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-secret
+  namespace: java-test
+data:
+  .dockerconfigjson: ewoJImF1dGhzIjogewoJCSIxMC4yOC41MC4yMCI6IHsKCQkJImF1dGgiOiAiYUdGeVltOXlPa2hoY21KdmNrQXhNak09IgoJCX0KCX0KfQo=
+type: kubernetes.io/dockerconfigjson
+EOF
 ```
