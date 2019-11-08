@@ -28,3 +28,13 @@ org.apache.juli.FileHandler.prefix = error-debug.
 java.util.logging.ConsoleHandler.level = FINE  
 java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter 
 ```
+
+``` bash
+#自定义tomcat console 日志输出格式
+echo >> logging.properties << EOF
+java.util.logging.ConsoleHandler.level = FINE
+#java.util.logging.ConsoleHandler.formatter = org.apache.juli.OneLineFormatter
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+java.util.logging.SimpleFormatter.format = %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL [%4$s] [%3$s] %2$s %5$s %6$s%n
+EOF
+```
