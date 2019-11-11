@@ -74,16 +74,22 @@ Timeout=6
 3.配置模版
 4.配置主机组
 5.配置action auto registration(主机自动注册)
-6.配置action triggers(告警)
+6.配置action triggers(告警脚本)
 7.配置low-level discovery(自定义发现脚本)
-8.配置dashboard自定义
-9.配置grafana可视化界面
+8.配置dashboard自定义(数值统计)
+9.配置必要宏macros(如snmp_community)
+10.配置map(分组服务器概况,网络设备概况及拓扑及端口流量)
+11.配置screen组合graph及map
+12.配置grafana可视化界面
 
 ```
 
 ## optimize
 
 ``` bash
+#server配置优化
+1.参照web中zabbix-server图形监控项目及触发器调整到最优
+
 #架构优化
 1.item设置为主动模式,缓解zabbix-server压力
 2.加入proxy代理(主动模式),缓解zabbix-server压力
