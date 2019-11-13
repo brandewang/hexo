@@ -131,37 +131,6 @@ flush tables with read lock;
 unlock tables;
 ```
 
-## mysqldump
-``` bash
-#--all-databases  导出所有数据库
-#--master-data=1  该选项将binlog的位置和文件名追加到输出文件中
-#--master-data=2  将位置和文件名添加注释，实际导入时需要手动输入master binlog 位置
-#--single-transaction  在导出数据之前提交一个BEGIN,BEGIN不会阻塞任何应用程序且能保证数据库一致性
-
-mysqldump -h $hostname -u$user -p$password --master-data=1 --all-databases --single-transaction > mysql.sql
-
-#dump 数据库实例的所有信息(除去mysql,sys,information_schema 和performance_schema数据库)
-mysql -uroot -pfruit@123 -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME NOT IN ('mysql', 'performance_schema', 'information_schema', 'sys')" | tr 'n' ' ' > /root/dbs-to-dump.sql
-#dump 数据库
-mysqldump --routines --events --lock-all-tables --databases $(cat /root/dbs-to-dump.sql) > /root/full-data-dump.sql
-#不导出gtid(用于主从同步)可加入该参数 --set-gtid-purged=off
-#锁定全表 --lock-all-tables (允许中断时使用 锁住方式类似 flush tables with read lock 的全局锁)
-#使用事务保证一致性 --single-transaction (不允许中断时使用)
-
-  
-#获取用户和权限信息. 该操作会备份所有用户的权限.
-wget percona.com/get/pt-show-grants
-yum install perl-DBD-MySQL
-#确保/var/lib/mysql/mysql.sock存在，可以使用ln -s创建软链,或使用--host=127.0.0.1 --port=3306
-ln -s /usr/local/mysql/mysqld.sock /var/lib/mysql/mysql.sock
-perl pt-show-grants --user=root --password=root --flush > /root/grants.sql
-
-#导入
-mysql -uroot < /root/grants.sql
-mysql -e "SET GLOBAL max_allowed_packet=1024*1024*1024";
-mysql -uroot -p --max-allowed-packet=1G < /root/full-data-dump.sql;
-
-```
 
 ## 查看数据库碎片& 整理碎片释放空间
 ``` bash
@@ -270,4 +239,76 @@ select name from mysql.proc where db = 'dms_sample' and type = 'PROCEDURE';
 #同一张表互换两列数据
 update product as a, product as b set a.original_price=b.price, a.price=b.original_price where a.id=b.id;
 
+```
+
+## backup
+``` bash
+##对比
+Xtrabackup备份：占用的CPU与内存较低，消耗的IO较大，备份文件效率很高，数据恢复(导入)非常快。
+Xtrabackup压缩备份：占用的CPU与内存较高，消耗的IO相对较大，备份文件效率较高，数据恢复(导入)非常快。
+Mysqldump压缩备份时：占用的CPU与内存较少，消耗的IO较少，备份文件效率较低，数据恢复(导入)非常慢
+
+
+## mysqdump
+#--all-databases  导出所有数据库
+#--master-data=1  该选项将binlog的位置和文件名追加到输出文件中
+#--master-data=2  将位置和文件名添加注释，实际导入时需要手动输入master binlog 位置
+#--single-transaction  在导出数据之前提交一个BEGIN,BEGIN不会阻塞任何应用程序且能保证数据库一致性
+
+mysqldump -h $hostname -u$user -p$password --master-data=1 --all-databases --single-transaction > mysql.sql
+
+#dump 数据库实例的所有信息(除去mysql,sys,information_schema 和performance_schema数据库)
+mysql -uroot -pfruit@123 -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME NOT IN ('mysql', 'performance_schema', 'information_schema', 'sys')" | tr 'n' ' ' > /root/dbs-to-dump.sql
+#dump 数据库
+mysqldump --routines --events --lock-all-tables --databases $(cat /root/dbs-to-dump.sql) > /root/full-data-dump.sql
+#不导出gtid(用于主从同步)可加入该参数 --set-gtid-purged=off
+#锁定全表 --lock-all-tables (允许中断时使用 锁住方式类似 flush tables with read lock 的全局锁)
+#使用事务保证一致性 --single-transaction (不允许中断时使用)
+
+  
+#获取用户和权限信息. 该操作会备份所有用户的权限.
+wget percona.com/get/pt-show-grants
+yum install perl-DBD-MySQL
+#确保/var/lib/mysql/mysql.sock存在，可以使用ln -s创建软链,或使用--host=127.0.0.1 --port=3306
+ln -s /usr/local/mysql/mysqld.sock /var/lib/mysql/mysql.sock
+perl pt-show-grants --user=root --password=root --flush > /root/grants.sql
+
+#导入
+mysql -uroot < /root/grants.sql
+mysql -e "SET GLOBAL max_allowed_packet=1024*1024*1024";
+mysql -uroot -p --max-allowed-packet=1G < /root/full-data-dump.sql;
+
+## Percona Xtrabackup
+wget https://www.percona.com/downloads/XtraBackup/Percona-XtraBackup-2.4.9/binary/redhat/6/x86_64/Percona-XtraBackup-2.4.9-ra467167cdd4-el6-x86_64-bundle.tar
+tar xf Percona-XtraBackup-2.4.9-ra467167cdd4-el6-x86_64-bundle.tar
+yum install percona-xtrabackup-24-2.4.9-1.el6.x86_64.rpm -y
+
+#文件
+xtrabackup_checkpoints 记录相关备份信息
+
+#参数
+--parallel 多线程解压 加速 
+
+##全备
+#备份
+/usr/bin/innobackupex --defaults-file=/etc/my.cnf --user=root --password='xxx@xxx' --parallel=2 --throttle=200  --backup /data/mysql_backup/
+#流+压缩 备份
+/usr/bin/innobackupex --defaults-file=/etc/my.cnf --user=root --password='xxx@xxx' --parallel=2 --throttle=200  --backup --stream=tar /tmp |gzip > /data/mysql_backup/bak.tar.gz
+恢复
+innobackupex --defaults-file=/etc/my.cnf --apply-log   2019-11-13_14-34-51
+systemctl stop mysqld
+mv /var/lib/mysql/* /tmp/mysql/
+innobackupex --defaults-file=/etc/my.cnf  --user=root --password='xxx@xxx' --copy-back 2019-11-13_14-34-51
+
+##增量
+#备份
+/usr/bin/innobackupex --defaults-file=/etc/my.cnf --user=root --password='xxx@xxx' --parallel=2 --throttle=200  --backup /data/mysql_backup/
+/usr/bin/innobackupex --defaults-file=/etc/my.cnf --user=root --password='xxx@xxx' --parallel=2 --throttle=200  --backup --incremental /data/mysql_backup/ --incremental-basedir=/data/mysql_backup/2019-11-13_14-34-51
+/usr/bin/innobackupex --defaults-file=/etc/my.cnf --user=root --password='xxx@xxx' --parallel=2 --throttle=200  --backup --incremental /data/mysql_backup/ --incremental-basedir=/data/mysql_backup/2019-11-13_14-41-24
+#恢复
+innobackupex --defaults-file=/etc/my.cnf --apply-log  --redo-only 2019-11-13_14-34-51
+innobackupex --defaults-file=/etc/my.cnf --apply-log  --redo-only 2019-11-13_14-34-51 --incremental-dir=2019-11-13_14-41-24
+innobackupex --defaults-file=/etc/my.cnf --apply-log  --redo-only 2019-11-13_14-34-51 --incremental-dir=2019-11-13_14-44-58
+innobackupex --defaults-file=/etc/my.cnf --apply-log   2019-11-13_14-34-51
+innobackupex --defaults-file=/etc/my.cnf  --user=root --password='xxx@xxx' --copy-back 2019-11-13_14-34-51
 ```

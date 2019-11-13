@@ -89,6 +89,20 @@ Timeout=6
 ``` bash
 #server配置优化
 1.参照web中zabbix-server图形监控项目及触发器调整到最优
+#调整zabbix_server进程数量
+StartPollers=80
+StartPingers=10
+StartPollersUnreachable=80
+StartIPMIPollers=10
+StartTrappers=20
+StartDBSyncers=6
+#调整内存大小
+VMwareCacheSize=64M
+CacheSize=32M
+HistoryCacheSize=256M
+TrendCacheSize=64M
+HistoryIndexCacheSize = 32M
+ValueCacheSize=64M
 
 #架构优化
 1.item设置为主动模式,缓解zabbix-server压力
@@ -97,6 +111,14 @@ Timeout=6
 #数据库优化
 1.my.cnf参数优化
 2.分库分表
+#调整数据库innodb
+innodb_file_per_table = 1
+innodb_buffer_pool_size=<large> (~75% of total RAM)
+innodb_buffer_pool_instances = 4 (MySQL 5.6 - 8)
+innodb_flush_log_at_trx_commit = 2
+innodb_flush_method = O_DIRECT
+innodb_log_file_size = 256M
+
 
 #数据库空间计算
 1.历史数据 (每条历史数据需要占用大概50个字节(Bytes))
