@@ -3,6 +3,13 @@ title: linux
 date: 2088-08-08 08:08:08
 tags:
 ---
+
+# cup
+``` 
+同一个进程同一时间段只能在一个cpu中运行，如果进程数小于cpu数，那么未使用的cpu将会空闲。
+同一个线程同一时间段只能在一个cpu内核中运行，如果线程数小于cpu内核数，那么将有多余的内核空闲。
+```
+
 # 持久化systemd-journal日志
 ``` bash
 mkdir /var/log/journal
