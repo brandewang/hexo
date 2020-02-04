@@ -4,7 +4,7 @@ date: 2088-08-08 08:08:08
 tags:
 ---
 
-# cup
+# cpu
 ``` 
 同一个进程同一时间段只能在一个cpu中运行，如果进程数小于cpu数，那么未使用的cpu将会空闲。
 同一个线程同一时间段只能在一个cpu内核中运行，如果线程数小于cpu内核数，那么将有多余的内核空闲。
@@ -16,6 +16,13 @@ mkdir /var/log/journal
 chown root:systemd-journal /var/log/journal
 chmod 2755 /var/log/jounal
 systemctl restart systemd-journald
+```
+
+## 生成随机密码
+``` bash
+openssl rand -base64 10
+openssl rand -base64 10|tr A-Z a-z
+openssl rand -base64 32|tr A-Z a-z|cut -c 1-10
 ```
 
 ## 环境变量
