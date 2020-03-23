@@ -4,6 +4,12 @@ date: 2088-08-08 08:08:08
 tags:
 ---
 
+## url
+``` bash
+#template,module & more
+https://share.zabbix.com/
+```
+
 ## install
 
 ``` bash
