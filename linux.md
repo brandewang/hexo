@@ -25,6 +25,12 @@ openssl rand -base64 10|tr A-Z a-z
 openssl rand -base64 32|tr A-Z a-z|cut -c 1-10
 ```
 
+## 时间同步
+``` bash
+chronyc -a makestep
+ntpdate 10.28.50.10
+```
+
 ## 环境变量
 
 ``` bash
