@@ -32,3 +32,13 @@ ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 6.supervisor  需要安装python及相关程序较占空间, 非必要情况不建议使用
 ```
 
+
+## 应用启动
+``` bash
+#hexo
+docker run  -d --name hexo -p 4000:4000  -v /opt/hexo/:/opt/hexo/ipple1986/source/_posts/ ipple1986/hexo
+
+#gitlab
+
+```
+
