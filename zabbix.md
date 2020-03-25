@@ -8,29 +8,37 @@ tags:
 ``` bash
 #template,module & more
 https://share.zabbix.com/
+#doc
+https://www.zabbix.com/documentation/4.0/zh/manual
+#download
+https://www.zabbix.com/cn/download_agents
 ```
 
 ## install
 
 ``` bash
-# mysql-community 5.7
+# mysql-community 5.7.29
 rpm -Uvh https://repo.mysql.com//mysql80-community-release-el7-3.noarch.rpm
 ##编辑repo文件安装5.7版本
 
 yum install mysql-community-server
+create database zabbix character set utf8 collate utf8_bin;
 ##数据库优化 /etc/my.cnf 
 
 
-# zabbix-server-mysql 4.0.14 (由于需要调用各种环境或工具建议不要使用容器)
+# zabbix-server-mysql 4.0.19 (由于需要调用各种环境或工具建议不要使用容器)
 rpm -Uvh https://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-2.el7.noarch.rpm
 yum -y install zabbix-server-mysql
+#初始化表结构 
+zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -uzabbix -p zabbix
+
 
 ## zabbix_server.conf 相关参数
 DBName=zabbix
 DBUser=zabbix
 DBPassword=
 
-# zabbix-web-nginx-mysql 4.0.14(docker)
+# zabbix-web-nginx-mysql 4.0.19(docker)
 docker run --name zabbix-web \
 	-e ZBX_SERVER_HOST="10.28.50.8" \
 	-e DB_SERVER_HOST="10.28.50.8" \
@@ -38,7 +46,7 @@ docker run --name zabbix-web \
 	-e MYSQL_PASSWORD="zabbix" \
 	-e PHP_TZ="Asia/Shanghai" \
 	-p 80:80 -p 443:443 \
-	-d zabbix/zabbix-web-nginx-mysql:alpine-4.0.14
+	-d zabbix/zabbix-web-nginx-mysql:alpine-4.0.19
 
 
 # zabbix-proxy-mysql 4.0.14(docker)
@@ -144,6 +152,66 @@ innodb_log_file_size = 256M
 关于配置文件大小(Zabbix配置)，很小，基本可以忽略不记。
 
 ```
+
+## Discovery
+``` bash
+web->configuration->Discovery
+主要通过配置ip range和check响应方式发现主机
+
+1.snmp发现设备(idrac,ilo,switch,route)
+通过配置community团体名称来区分,如idrac8,ilo2,cisco.以此来区分check类型,在action中应用不同的check类型来link不同的模版
+
+2.zabbix_agent
+主要用来发现系统
+
+```
+
+## Media
+``` bash
+Name: wechat
+Type: script
+Script name: wechat.py
+Script parameters: {ALERT.SENDTO}
+				   {ALERT.SUBJECT}
+				   {ALERT.MESSAGE}
+```
+
+## Action
+``` bash
+#Trigger
+step 1-10 600s
+step 11-0 1h
+
+##Default subject
+{TRIGGER.STATUS}: {TRIGGER.NAME}
+##Default message
+异常主机名: {HOST.NAME}
+异常主机地址: {HOST.IP}
+异常级别: {TRIGGER.SEVERITY}
+异常时间: {EVENT.DATE} {EVENT.TIME} 
+
+异常内容:
+now value: {{HOST.HOST}:{ITEM.KEY}.last()}
+MIN for 10 minutes: {{HOST.HOST}:{ITEM.KEY}.min(900)}
+
+事件ID: {EVENT.ID}
+
+##Recovery subject
+{TRIGGER.STATUS}: {TRIGGER.NAME}
+
+##Recovery message
+主机名: {HOST.NAME}
+主机地址: {HOST.IP}
+异常时间: {EVENT.DATE} {EVENT.TIME} 
+恢复时间: {EVENT.RECOVERY.DATE} {EVENT.RECOVERY.TIME}
+
+Latest value: {{HOST.HOST}:{ITEM.KEY}.last()}
+MAX for 10 minutes: {{HOST.HOST}:{ITEM.KEY}.max(600)}
+MIN for 10 minutes: {{HOST.HOST}:{ITEM.KEY}.min(600)}
+
+事件ID: {EVENT.ID}
+```
+
 
 ## IPMI
 
