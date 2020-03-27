@@ -231,3 +231,13 @@ Type:IPMI agent
 IPMI sensor: name:(3.2).Temp
 ```
 
+
+## 备份恢复
+``` bash
+#计划任务备份
+crontab -e
+10 1 * * * bash /opt/publish-shell/zbx_db_bak.sh >> /tmp/zbx_db_bak.log 2>&1
+#恢复
+for i in `ls /opt/bak/zabbix/2020-03-26/`;do  mysql -uroot -p123456 zabbix </opt/bak/zabbix/2020-03-26/$i;done
+PS:恢复后可能会出现profiles表重复键的问题，删除即可
+```

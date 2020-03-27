@@ -254,6 +254,8 @@ Mysqldump压缩备份时：占用的CPU与内存较少，消耗的IO较少，备
 #--master-data=1  该选项将binlog的位置和文件名追加到输出文件中
 #--master-data=2  将位置和文件名添加注释，实际导入时需要手动输入master binlog 位置
 #--single-transaction  在导出数据之前提交一个BEGIN,BEGIN不会阻塞任何应用程序且能保证数据库一致性
+#官方建议在InnoDB存储引擎时候，使用 --single-transaction，而不要用 --lock-tables，因为--lock-tables会造成锁表的问题。
+
 
 mysqldump -h $hostname -u$user -p$password --master-data=1 --all-databases --single-transaction > mysql.sql
 
