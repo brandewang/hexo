@@ -4,6 +4,12 @@ date: 2088-08-08 08:08:08
 tags:
 ---
 
+## DOC
+``` bash
+variables : http://nginx.org/en/docs/varindex.html
+
+``` 
+
 # Nginx Install
 ``` bash
 cd /usr/local/src
