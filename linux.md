@@ -111,3 +111,16 @@ fio -filename=/dev/emcpowerb -direct=1 -iodepth 1 -thread -rw=write -ioengine=ps
 #100%随机，70%读，30%写 4K
 fio -filename=/dev/emcpowerb -direct=1 -iodepth 1 -thread -rw=randrw -rwmixread=70 -ioengine=psync -bs=4k -size=1000G -numjobs=50 -runtime=180 -group_reporting -name=randrw_70read_4k
 ```
+
+## ssh 
+
+``` bash
+#解决dsa类型的key认证
+##加入校验类型
+/etc/ssh/sshd_config
+PubkeyAcceptedKeyTypes=+ssh-dss
+##允许所有加密规则
+/etc/sysconfig/sshd
+CRYPTO_POLICY=
+
+```
