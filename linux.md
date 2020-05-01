@@ -124,3 +124,48 @@ PubkeyAcceptedKeyTypes=+ssh-dss
 CRYPTO_POLICY=
 
 ```
+
+## 内核升级
+
+``` bash
+1，载入公钥
+
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+
+2，安装ELRepo
+yum install https://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+
+
+3，添加repository 后, 列出可以使用的kernel包版本
+yum --disablerepo="*" --enablerepo="elrepo-kernel" list available
+
+4、安装需要的kernel版本，这里安装 kernel-lt
+yum --enablerepo=elrepo-kernel install kernel-lt
+
+内核版本介绍：
+lt:longterm的缩写：长期维护版；
+ml:mainline的缩写：最新稳定版；
+
+5，查看内核的启动顺序
+awk -F\' '$1=="menuentry " {print $2}' /etc/grub2.cfg
+
+6，设置启动顺序
+默认启动的顺序是从0开始，新内核是从头插入（目前位置在0，而4.4.4的是在1），所以需要选择0。
+grub2-set-default 0
+#查看内核启动项
+grub2-editenv list
+
+7，卸载老版本kernel内核工具
+rpm -qa|grep kernel|grep 3.10
+rpm -qa|grep kernel|grep 3.10|xargs yum remove -y
+备注：有一个正在运行的kernel3.10卸载不了，因为正在运行中，重启之后可卸载。
+
+8，安装新版的工具包
+yum --enablerepo=elrepo-kernel install -y kernel-lt-tools
+检查：
+rpm -qa|grep kernel
+
+9，重启并检查版本
+reboot
+uname -a
+```
