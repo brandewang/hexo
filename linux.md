@@ -133,7 +133,7 @@ CRYPTO_POLICY=
 rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 
 2，安装ELRepo
-yum install https://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+yum install https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm
 
 
 3，添加repository 后, 列出可以使用的kernel包版本
