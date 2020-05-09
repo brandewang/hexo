@@ -13,7 +13,7 @@ Real server2:(eth0 192.168.0.28 vip lo:0 192.168.0.38)
 # director
 yum install -y ipvsadm
 
-cat > /home/www/publish-shell/lvs_dr.sh <EOF
+cat > /home/www/ops_scripts/lvs_dr.sh <EOF
 echo 1 > /proc/sys/net/ipv4/ip_forward
 ipv=/sbin/ipvsadm
 vip=192.168.0.38
@@ -27,10 +27,10 @@ $ipv -A -t $vip:80 -s wrr
 $ipv -a -t $vip:80 -r $rs1:80 -g -w 3
 $ipv -a -t $vip:80 -r $rs2:80 -g -w 1
 EOF
-bash /home/www/publish-shell/lvs_dr.sh
+bash /home/www/ops_scripts/lvs_dr.sh
 
 # rs
-cat > /home/www/publish-shell/lvs_dr_rs.sh <EOF
+cat > /home/www/ops_scripts/lvs_dr_rs.sh <EOF
 #! /bin/bash
 vip=192.168.0.38
 ifconfig lo:0 $vip broadcast $vip netmask 255.255.255.255 up
@@ -40,7 +40,7 @@ echo "2" >/proc/sys/net/ipv4/conf/lo/arp_announce
 echo "1" >/proc/sys/net/ipv4/conf/all/arp_ignore
 echo "2" >/proc/sys/net/ipv4/conf/all/arp_announce
 EOF
-bash /home/www/publish-shell/lvs_dr_rs.sh
+bash /home/www/ops_scripts/lvs_dr_rs.sh
 
 #ipvsadm查看当前状态
 ipvsadm -l
