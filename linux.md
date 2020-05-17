@@ -4,15 +4,36 @@ date: 2088-08-08 08:08:08
 tags:
 ---
 
-# bash
+# shell
 
 ```
+#bash
 #打印调试信息
 set -x
 
 #遇错退出
 set -e
+
+
+
+#sed
+#\1代表第一个括号匹配
+echo 'abcabcabc' | sed 's/\(ab\)c/\1/'
+
+
 ```
+
+# network
+
+```
+#centos8
+#网卡启停
+systemctl restart network
+nmcli connection reload 
+nmcli connection down eth0 
+nmcli connection up eth0 
+```
+
 
 # cpu
 ``` 

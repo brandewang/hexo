@@ -12,6 +12,8 @@ https://share.zabbix.com/
 https://www.zabbix.com/documentation/4.0/zh/manual
 #download
 https://www.zabbix.com/cn/download_agents
+#grafana
+https://grafana.com/dashboards?search=zabbix
 ```
 
 ## install
