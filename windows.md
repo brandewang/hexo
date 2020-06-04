@@ -80,6 +80,16 @@ dsquery user -disabled "OU=GIHG,DC=gihg,DC=com" > dis_user.txt
 type dis_user.txt|dsmod user -disabled yes
 
 
+--------------------------
+#批量新建用户
+
+#模版csv
+CN,Description,DisplayName,GivenName,Surname,ou,SamAccountName,UserPrincipalName,telephoneNumber,mail,wWWHomePage,AccountPassword
+BrightZhou,周玥,BrightZhou,Zhou,Bright,"OU=OU_InformationTechnology,OU=OU_Department,OU=Users,OU=GIHTG,DC=gihtg,DC=com",bright.zhou,bright.zhou@gihtg.com,139 1629 4455,bright.zhou@thequbehotels.com,www.gihtg.com,gihtg@2020
+
+
+#导入命令
+Import-Csv .\it_new_user.csv |ForEach-Object {New-ADUser -Name $_.CN -Description $_.Description  -EmailAddress $_.mail -OfficePhone $_.telephoneNumber -HomePage $_.wWWHomePage -DisplayName $_.DisplayName -GivenName $_.GivenName -Surname $_.Surname -Path $_.ou -SamAccountName $_.SamAccountName -UserPrincipalName $_.UserPrincipalName -AccountPassword(ConvertTo-SecureString -AsPlainText $_.AccountPassword -Force) -Enabled 1 -ChangePasswordAtLogon 0 -PasswordNeverExpires 1}
 ```
 
 

@@ -18,7 +18,7 @@ docker run -d \
 --name=grafana \
 -e "GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app" \
 -v /opt/grafana/etc:/etc/grafana -v /opt/grafana/var:/var/lib/grafana \
-grafana/grafana
+grafana/grafana:6.7.3
 
 ```
 
