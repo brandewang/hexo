@@ -92,5 +92,32 @@ BrightZhou,周玥,BrightZhou,Zhou,Bright,"OU=OU_InformationTechnology,OU=OU_Depa
 Import-Csv .\it_new_user.csv |ForEach-Object {New-ADUser -Name $_.CN -Description $_.Description  -EmailAddress $_.mail -OfficePhone $_.telephoneNumber -HomePage $_.wWWHomePage -DisplayName $_.DisplayName -GivenName $_.GivenName -Surname $_.Surname -Path $_.ou -SamAccountName $_.SamAccountName -UserPrincipalName $_.UserPrincipalName -AccountPassword(ConvertTo-SecureString -AsPlainText $_.AccountPassword -Force) -Enabled 1 -ChangePasswordAtLogon 0 -PasswordNeverExpires 1}
 ```
 
+## 组策略
 
+``` bash 
+#查看已加载组策略
+gpresult /r
 
+#查看本地策略
+gpedit.msc
+
+#查看域策略
+rsop.msc
+```
+
+## wsus
+
+``` bash
+#模式
+1.自治模式
+2.副本模式
+
+#win7
+#客户端连接服务器
+wuauclt /detectnow
+wuauclt /reportnow
+
+#win10 win2016 win2019
+#客户端连接服务器
+c:\windows\system32\UsoClient.exe startscan
+```
