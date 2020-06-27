@@ -275,3 +275,20 @@ rpm -qa|grep kernel
 reboot
 uname -a
 ```
+
+
+# iptables
+``` bash
+#清空规则
+iptables -F
+iptables -X
+iptables -Z
+iptables -L -n
+
+iptables -F -t nat
+iptables -X -t nat
+iptables -Z -t nat
+iptables -L -n -t nat
+
+```
+
