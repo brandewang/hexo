@@ -46,8 +46,17 @@ symbolic-links=0
 #log
 log-error=/var/log/mysqld.log
 
+#bin log
+server_id=1
+log_bin=mysql-binlog
+log_bin_index=mysql-binlog.index
+binlog_format=statement
+sync_binlog=0
+expire_logs_days=14
+max_binlog_size=200M
+
 #language
-log_timestamps = SYSTEM
+log_timestamps=SYSTEM
 character-set-server=utf8
 collation-server=utf8_general_ci
 lower_case_table_names=1

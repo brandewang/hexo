@@ -1,5 +1,5 @@
 ---
-title: MYSQL_COMMAND
+title: mysql_command
 date: 2088-08-08 08:08:08
 tags:
 ---
@@ -153,9 +153,12 @@ ALTER TABLE yourdatabasename.yourtablename ENGINE='InnoDB';
 #mysql中查看binlog
 1.获取binlog文件列表
 mysql> show binary logs;
+mysql> show master logs;
 2.查看当前正在写入的binlog文件
 mysql> show master status;
-3.查看指定binlog文件的内容语法：
+3.刷新日志,此刻产生一个新编号的binlog
+mysql > flush logs;
+4.查看指定binlog文件的内容语法：
 mysql> SHOW BINLOG EVENTS [IN 'log_name'] [FROM pos] [LIMIT [offset,] row_count]
 mysql> SHOW BINLOG EVENTS IN 'mysql-bin.000005' \G
 mysql> SHOW BINLOG EVENTS IN 'mysql-bin.000005' FROM 194 LIMIT 2 \G;
@@ -251,18 +254,20 @@ Mysqldump压缩备份时：占用的CPU与内存较少，消耗的IO较少，备
 
 ## mysqdump
 #--all-databases  导出所有数据库
-#--master-data=1  该选项将binlog的位置和文件名追加到输出文件中
+#--master-data=1  该选项将binlog的位置和文件名追加到输出文件中 
 #--master-data=2  将位置和文件名添加注释，实际导入时需要手动输入master binlog 位置
+#--lock-all-tables  全局表锁，保证数据一致性，如果只只用包含事务功能的innodb，请使用single-transaction
 #--single-transaction  在导出数据之前提交一个BEGIN,BEGIN不会阻塞任何应用程序且能保证数据库一致性
+#--routines 导出存储过程以及自定义函数
+#--flush-logs 开始到处之前刷新日志
+#--events 导出事件
 #官方建议在InnoDB存储引擎时候，使用 --single-transaction，而不要用 --lock-tables，因为--lock-tables会造成锁表的问题。
 
-
-mysqldump -h $hostname -u$user -p$password --master-data=1 --all-databases --single-transaction > mysql.sql
-
 #dump 数据库实例的所有信息(除去mysql,sys,information_schema 和performance_schema数据库)
-mysql -uroot -pfruit@123 -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME NOT IN ('mysql', 'performance_schema', 'information_schema', 'sys')" | tr 'n' ' ' > /root/dbs-to-dump.sql
-#dump 数据库
-mysqldump --routines --events --lock-all-tables --databases $(cat /root/dbs-to-dump.sql) > /root/full-data-dump.sql
+mysql -uroot -pfruit@123 -BNe "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME NOT IN ('mysql', 'performance_schema', 'information_schema', 'sys')" | tr 'n' ' ' > /tmp/dbs-to-dump.sql
+mysqldump -h 127.0.0.1 -uroot -pGihtg@123 --master-data=1 --flush-logs --routines --single-transaction --databases $(cat /tmp/dbs-to-dump.sql)  > bak.sql 
+
+
 #不导出gtid(用于主从同步)可加入该参数 --set-gtid-purged=off
 #锁定全表 --lock-all-tables (允许中断时使用 锁住方式类似 flush tables with read lock 的全局锁)
 #使用事务保证一致性 --single-transaction (不允许中断时使用)
