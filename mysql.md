@@ -50,9 +50,9 @@ log-error=/var/log/mysqld.log
 server_id=1
 log_bin=mysql-binlog
 log_bin_index=mysql-binlog.index
-binlog_format=statement
+binlog_format=mixed
 sync_binlog=0
-expire_logs_days=14
+expire_logs_days=10
 max_binlog_size=200M
 
 #language
@@ -77,7 +77,51 @@ innodb_buffer_pool_size=12G  #推荐设置为系统内存的80%
 long_query_time=3
 slow-query-log=on
 
+#二进制日志选择性写入
+#binlog-db-db=db01
+#binlog-db-db=db02
+#binlog-ignore-db=mysql 
+#binlog-ignore-db=information_schema
+#binlog-ignore-db=performance_schema
+#binlog-ignore-db=sys
 EOF
 ```
 
+# Replication
 
+``` bash
+#master
+创建同步账号
+CREATE USER 'slaver'@'%' IDENTIFIED BY 'root123456';
+grant replication slave, replication client on *.* to 'slaver'@'%' identified by 'root123456';
+
+#slave
+server_id=2
+slave-skip-errors=all
+slave-net-timeout=60
+read_only=1
+
+#如未设置三级同步
+关闭从库二进制日志即可
+
+#三级同步主从均设置
+log-slave-updates
+
+#从库二进制过滤，为避免三级同步重复写入，从库需要使用replicate-do-db,replicate-ignore-db
+replicate-ignore-db=db_test
+replicate-ignore-db=db_test02
+replicate-ignore-db=mysql
+replicate-ignore-db=information_schema
+replicate-ignore-db=performance_schema
+replicate-ignore-db=sys
+
+#设置同步
+mysql> stop slave;
+mysql> change master to
+    -> master_host='10.55.4.14',
+    -> master_user='slave',
+    -> master_password='Gihg@123',
+    -> master_log_file='mysql-binlog.000002',
+    -> master_log_pos=154;
+mysql> start slave;
+```
