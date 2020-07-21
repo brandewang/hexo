@@ -53,7 +53,7 @@ log_bin_index=mysql-binlog.index
 binlog_format=mixed
 sync_binlog=0
 expire_logs_days=10
-max_binlog_size=200M
+max_binlog_size=100M
 
 #language
 log_timestamps=SYSTEM

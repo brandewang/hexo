@@ -243,3 +243,39 @@ crontab -e
 for i in `ls /opt/bak/zabbix/2020-03-26/`;do  mysql -uroot -p123456 zabbix </opt/bak/zabbix/2020-03-26/$i;done
 PS:恢复后可能会出现profiles表重复键的问题，删除即可
 ```
+
+## configuration
+``` bash
+LogFile=/var/log/zabbix/zabbix_server.log
+LogFileSize=0
+PidFile=/var/run/zabbix/zabbix_server.pid
+SocketDir=/var/run/zabbix
+DBHost=10.55.5.31
+DBName=zabbix
+DBUser=zabbix
+DBPassword=Zabbix@123
+SNMPTrapperFile=/var/log/snmptrap/snmptrap.log
+Timeout=4
+AlertScriptsPath=/usr/lib/zabbix/alertscripts
+ExternalScripts=/usr/lib/zabbix/externalscripts
+LogSlowQueries=3000
+
+#调整zabbix_server进程数量
+StartPollers=30
+StartPingers=5
+StartPollersUnreachable=10
+StartIPMIPollers=3
+StartTrappers=1
+StartDBSyncers=6
+StartVMwareCollectors=5
+#调整内存大小
+VMwareCacheSize=80M
+CacheSize=32M
+HistoryCacheSize=256M
+TrendCacheSize=64M
+HistoryIndexCacheSize = 32M
+ValueCacheSize=64M
+#调整采集频率
+VMwareFrequency=60
+```
+
