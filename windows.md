@@ -45,8 +45,40 @@ w32tm /config /syncfromflags:domhier /reliable:yes /update
 #检查域控错误信息
 dcdiag /s:host.domain.com
 #ad同步检查
-repadmin /showrepl
+repadmin /showreps
+#ad手动同步
 repadmin /syncall
+repadmin /replicate shapa-rodc-01 gihtg-dc01 DC=DomainDnsZones,DC=gihtg,DC=com
+#查看usn
+repadmin /showvector /latency dc=gihtg,dc=com
+
+----------------------------
+#清理永久脱域域控制信息
+
+1.进入windows powershell或cmd
+#启动ntdsutil工具
+ntdsutil
+#进入清理功能
+metadata cleanup
+#选择操作主机
+select operation target
+connections
+connections to domain gihtg.com
+quit
+list sites
+select sites 0
+list domains in site
+select domain 0
+list servers for domain in site
+select server 0
+quit
+remove selected server
+
+2.打开DNS管理器
+清理DomainDnsZones、ForestDnsZones下对应的域控信息
+
+
+
 
 -------------------------
 #导入导出active direcotry对象
