@@ -48,9 +48,20 @@ dcdiag /s:host.domain.com
 repadmin /showreps
 #ad手动同步
 repadmin /syncall
-repadmin /replicate shapa-rodc-01 gihtg-dc01 DC=DomainDnsZones,DC=gihtg,DC=com
+repadmin /replicate shapa-rodc-01 gihtg-dc02 DC=gihtg,DC=com
+repadmin /replicate shapa-rodc-01 gihtg-dc02 CN=Configuration,DC=gihtg,DC=com
+repadmin /replicate shapa-rodc-01 gihtg-dc02 CN=Schema,CN=Configuration,DC=gihtg,DC=com
+repadmin /replicate shapa-rodc-01 gihtg-dc02 DC=DomainDnsZones,DC=gihtg,DC=com
+repadmin /replicate shapa-rodc-01 gihtg-dc02 DC=ForestDnsZones,DC=gihtg,DC=com
+
 #查看usn
 repadmin /showvector /latency dc=gihtg,dc=com
+
+
+#批量预设rodc密码凭据
+dsquery user "OU=SHAPA,OU=Users,OU=GIHTG,DC=gihtg,DC=com"|foreach {repadmin /rodcpwdrepl shapa-rodc-01 gihtg-dc02 $_}
+dsquery computer "OU=SHAPA,OU=Computers,OU=GIHTG,DC=gihtg,DC=com"|foreach {repadmin /rodcpwdrepl shapa-rodc-01 gihtg-dc02 $_}
+
 
 ----------------------------
 #清理永久脱域域控制信息
