@@ -12,13 +12,14 @@ yum install bind*
 vim /etc/named.conf
 #添加局域网监听地址，添加允许查询地址段，设置转发即使存在zone . 也不使用
 listen-on port 53 { 127.0.0.1;10.28.50.6 };
-allow-query     { localhost;10.28.50.0/24; };
+allow-query     { localhost;10.28.50.0/24;any; };
 forward only;
-    forwarders {
-    202.96.209.133;
- };
+forwarders { 202.96.209.133; };
 #设置允许复制的slave的ip，不允许则为none
 allow-transfer  { 10.28.20.61; };
+
+#检查配置文件
+named-checkconf
 
 
 #确认include此文件
@@ -35,13 +36,13 @@ zone "cephcookbook.com" IN {
 };
 
 #vim /var/named/db.cephcookbook.com
-$TTL 86400
+$TTL 600; 10 minutes
 @ IN SOA cephcookbook.com. root.cephcookbook.com. (
-20180704 ; serial
-3H ; refresh
-15M ; retry
-1W ; expire
-1D ) ; minimum
+	20180704 ; serial
+	3H ; refresh
+	15M ; retry
+	1W ; expire
+	1D ) ; minimum
 @ IN NS cephcookbook.com.
 @ IN A 10.28.50.6
 #设置slave NS记录

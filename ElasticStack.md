@@ -195,8 +195,12 @@ networks:
 
 elasticsearch-head
 ``` bash
-#github
-https://github.com/mobz/elasticsearch-head
+git clone git://github.com/mobz/elasticsearch-head.git
+cd elasticsearch-head
+npm install --registry=https://registry.npm.taobao.org
+npm run start
+curl http://localhost:9100/
+
 
 ```
 

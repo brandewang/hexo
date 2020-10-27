@@ -216,6 +216,13 @@ fio -filename=/dev/emcpowerb -direct=1 -iodepth 1 -thread -rw=write -ioengine=ps
 
 #100%随机，70%读，30%写 4K
 fio -filename=/dev/emcpowerb -direct=1 -iodepth 1 -thread -rw=randrw -rwmixread=70 -ioengine=psync -bs=4k -size=1000G -numjobs=50 -runtime=180 -group_reporting -name=randrw_70read_4k
+
+
+#iperf
+#10.55.3.52 启动监听程序
+iperf -s
+#10.55.3.51 运行测试命令 间隔1秒反馈 连续检测5秒
+iperf -c 10.55.3.52 -i 1 -t 5
 ```
 
 ## ssh 
@@ -291,4 +298,24 @@ iptables -Z -t nat
 iptables -L -n -t nat
 
 ```
+# gre tunnel
+|vpc|外网地址|内网地址|隧道互联地址|
+|--|--|--|--|
+|杭州|121.196.208.175|10.55.5.100|192.168.1.1|
+|北京|60.205.187.39|10.55.6.100|192.168.1.1|
+``` bash
+#杭州
+modprobe  ip_gre
+ip tunnel add tun1-bj mode gre remote 60.205.187.39 local 121.196.208.175
+ip link set tun1-bj up
+ipaddr add 192.168.1.1 peer 192.168.1.2 dev tun1-bj
+route add -net 10.55.6.0/24 tun1-bj
 
+#北京
+modprobe  ip_gre
+ip tunnel add tun1-hz mode gre remote 121.196.208.175 local 60.205.187.39
+ip link set tun1-hz up
+ipaddr add 192.168.1.2 peer 192.168.1.1 dev tun1-hz
+route add -net 10.55.5.0/24 tun1-hz
+
+```
