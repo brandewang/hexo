@@ -32,7 +32,7 @@ tags:
 |keepalived|1.3.5|
 |haproxy|1.5.18|
 |calico|v3.16.4|
-|dashboard||
+|dashboard|v2.0.4|
 
 ### certificates 
 
@@ -68,11 +68,14 @@ $ vim /etc/fstab  # 永久
 设置主机名：
 $ hostnamectl set-hostname <hostname>
 
-在master添加hosts：
+在所有集群节点添加hosts：
 $ cat >> /etc/hosts << EOF
-10.55.3.54 ip-10-55-3-54
-10.55.3.55 ip-10-55-3-55
-10.55.3.56 ip-10-55-3-56
+10.55.3.54 k8s-master01
+10.55.3.55 k8s-master02
+10.55.3.56 k8s-master03
+10.55.3.57 k8s-node01
+10.55.3.58 k8s-node02
+10.55.3.59 k8s-node03
 EOF
 
 将桥接的IPv4流量传递到iptables的链：
@@ -585,7 +588,8 @@ Calico 在每一个计算节点利用 Linux Kernel 实现了一个高效的虚�
 
 此外，Calico  项目还实现了 Kubernetes 网络策略，提供ACL功能。
 
- https://docs.projectcalico.org/getting-started/kubernetes/quickstart
+https://docs.projectcalico.org/getting-started/kubernetes/quickstart
+https://docs.projectcalico.org/getting-started/kubernetes/self-managed-onprem/onpremises
 
 ```
 $ wget https://docs.projectcalico.org/manifests/calico.yaml
@@ -681,4 +685,25 @@ kubectl config set-context default \
   --kubeconfig=dashboard.kubeconfig
 
 kubectl config use-context default --kubeconfig=dashboard.kubeconfig
+```
+
+## 3.3 Metrics Server
+https://github.com/kubernetes-sigs/metrics-server
+```
+#下载manifests
+wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/components.yaml
+
+#修改为国内镜像资源，添加对应args
+      containers:
+      - name: metrics-server
+        image: lizhenliang/metrics-server:v0.3.7
+        imagePullPolicy: IfNotPresent
+        args:
+          - --cert-dir=/tmp
+          - --secure-port=4443
+          - --kubelet-insecure-tls
+          - --kubelet-preferred-address-types=InternalIP
+
+#创建资源
+kubectl apply -f components.yaml
 ```
