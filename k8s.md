@@ -719,6 +719,8 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/ngin
 
 - 修改国内镜像地址: lizhenliang/nginx-ingress-controller:0.30.0
 - 建议直接宿主机网络暴露: hostNetwork: true
+- 修改Deployment 为 DaemonSet
+- 删除replicas
 
 ## 4.2 traefik
 
