@@ -33,6 +33,9 @@ tags:
 |haproxy|1.5.18|
 |calico|v3.16.4|
 |dashboard|v2.0.4|
+|ingress-nginx|0.30.0|
+|traefik|v2.0.7|
+
 
 ### certificates 
 
@@ -707,3 +710,21 @@ wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/
 #创建资源
 kubectl apply -f components.yaml
 ```
+
+# 4. Ingress
+
+## 4.1 ingress-nginx
+github: https://github.com/kubernetes/ingress-nginx
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.30.0/deploy/static/mandatory.yaml
+
+- 修改国内镜像地址: lizhenliang/nginx-ingress-controller:0.30.0
+- 建议直接宿主机网络暴露: hostNetwork: true
+
+## 4.2 traefik
+
+# 5. Monitor
+
+## 5.1 kube-prometheus
+https://github.com/prometheus-operator/kube-prometheus
+
+
