@@ -575,6 +575,13 @@ kubeadm join k8s-apiserver-lb:8443 --token g7yiu8.zh6xe28pgr4hhsi2     --discove
 kubeadm join k8s-apiserver-lb:8443 --token u7gdni.ss8dr3knhzmd58l6     --discovery-token-ca-cert-hash sha256:8e09ca30cbeaa2c043b8e1193e7c2ba64eb47a7e89a361d7f511611668e274b5
 ```
 
+### 2.3.6 kube-controller-manager  kubelet自动续签设置
+/etc/kubernetes/manifests/kube-controller-manager.yaml
+    - --cluster-signing-duration=87600h0m0s
+    - --feature-gates=RotateKubeletServerCertificate=true
+
+/var/lib/kubelet/config.yaml
+rotateCertificates: true
 
 # 3. Addon
 
