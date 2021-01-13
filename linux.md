@@ -23,6 +23,14 @@ echo 'abcabcabc' | sed 's/\(ab\)c/\1/'
 
 ```
 
+# nfs
+
+```
+开机自动挂载
+vi /etc/fstab
+10.55.5.12:/volume1/nfs-bak01 /opt/bak  nfs     rw,soft,intr,timeo=30,retry=3,_netdev   0 0
+```
+
 # network
 
 ```
@@ -318,6 +326,78 @@ ip link set tun1-hz up
 ipaddr add 192.168.1.2 peer 192.168.1.1 dev tun1-hz
 route add -net 10.55.5.0/24 tun1-hz
 
+```
+
+# cfssl
+
+```
+# ca-csr.json
+{
+  "CN": "kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "L": "Shanghai",
+      "ST": "Shanghai",
+      "O": "GIHTG",
+      "OU": "ops"
+    }
+  ],
+  "ca": {
+    "expiry": "876000h"
+  }
+}
+
+# ca-config.json
+{
+  "signing": {
+    "default": {
+      "expiry": "876000h"
+    },
+    "profiles": {
+      "server": {
+        "expiry": "876000h",
+        "usages": [
+          "signing",
+          "key encipherment",
+          "server auth"
+        ]
+      },
+      "client": {
+        "expiry": "876000h",
+        "usages": [
+          "signing",
+          "key encipherment",
+          "client auth"
+        ]
+      }
+    }
+  }
+}
+
+# kub-apiserver-csr.json
+{
+  "CN": "kube-apiserver",
+  "hosts": [
+  "127.0.0.1",
+    ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  }
+}
+
+
+#初始化ca证书
+cfssl gencert -initca ca-csr.json |cfssljson -bare ca -
+#CA签发证书
+gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=server kube-apiserver-csr.json |cfssljson -bare kube-apiserver
+#续签ca证书, ca-csr.json和原始csr保持不变
+cfssl gencert -renewca -ca ca.pem -ca-key ca-key.pem
 ```
 
 # openssl
