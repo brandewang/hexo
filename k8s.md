@@ -21,7 +21,7 @@ tags:
 |k8s-node01|centos7.7|10.55.3.57|2c4g16g|
 |k8s-node02|centos7.7|10.55.3.58|2c4g16g|
 
-### software
+### k8s component
 
 |name|version|
 |---|---|
@@ -31,10 +31,6 @@ tags:
 |pause|3.2|
 |keepalived|1.3.5|
 |haproxy|1.5.18|
-|calico|v3.16.4|
-|dashboard|v2.0.4|
-|ingress-nginx|0.30.0|
-|traefik|v2.0.7|
 
 
 ### certificates 
@@ -585,37 +581,198 @@ rotateCertificates: true
 
 # 3. Addon
 
+## k8s addons
+|calico|v3.16.4|
+|dashboard|v2.0.4|
+|ingress-nginx|0.30.0|
+|traefik|v2.0.7|
+
+
 ## 3.1 部署容器网络(CNI)
+CNI (Container Network Interface, 容器网络接口): 是一个容器网络规范，Kubernetes网络采用的就是这个CNI规范，负责初始化infra容器的网络设备。
 
-https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#pod-network
+CNI 二进制程序默认路径： /opt/cni/bin/
+项目地址: https://github.com/containernetworking/plugins/releases
 
-注意：只需要部署下面其中一个，推荐Calico。
+CNI 配置文件默认路径：/etc/cni/net.d
 
-Calico是一个纯三层的数据中心网络方案，Calico支持广泛的平台，包括Kubernetes、OpenStack等。
+### flannel
+项目地址：https://github.com/coreos/flannel
+k8s-v1.17+配置清单: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
-Calico 在每一个计算节点利用 Linux Kernel 实现了一个高效的虚拟路由器（ vRouter） 来负责数据转发，而每个 vRouter 通过 BGP 协议负责把
-自己上运行的 workload 的路由信息向整个 Calico 网络内传播。
+#更改相关配置
+```
+  net-conf.json: |
+    {
+      "Network": "172.8.0.0/16",
+      "Backend": {
+        "Type": "vxlan"
+      }
+    }
+```
+#应用配置文件 (flannel不会自动生成cni二进制，需要提前准备)
 
-此外，Calico  项目还实现了 Kubernetes 网络策略，提供ACL功能。
+```
+kubectl apply -f kube-flannel.yml
+```
 
-https://docs.projectcalico.org/getting-started/kubernetes/quickstart
+### calico
+项目地址：https://github.com/projectcalico/calico
+
+calico包括如下重要组件：calico/node，Typha，Felix，etcd，BGP Client，BGP Route Reflector。
+
+- calico/node：把Felix，calico client， confd，Bird封装成统一的组件作为统一入口，同时负责给其他的组件做环境的初始化和条件准备。
+
+- Felix：主要负责路由配置以及ACLS规则的配置以及下发，它存在在每个node节点上。
+
+- etcd：存储各个节点分配的子网信息，可以与kubernetes共用；
+
+- BGPClient(BIRD), 主要负责把 Felix写入 kernel的路由信息分发到当前 Calico网络，确保 workload间的通信的有效性；
+
+- BGPRoute Reflector(BIRD), 大规模部署时使用，在各个节点之间不是mesh模式，通过一个或者多个 BGPRoute Reflector 来完成集中式的路由分发；当etcd中有新的规则加入时，Route Reflector 就会将新的记录同步。
+BIRD Route Reflector负责将所有的Route Reflector构建成一个完成的网络，当增减Route Reflector实例时，所有的Route Reflector监听到新的Route Reflector并与之同步交换对等的路由信息.
+
+- Typha：在节点数比较多的情况下，Felix可通过Typha直接和Etcd进行数据交互，不通过kube-apiserver，既降低其压力。生产环境中实例数建议在3~20之间，随着节点数的增加，按照每个Typha对应200节点计算。
+如果由kube-apiserver转为Typha。需要将yaml中typha_service_name 修改calico-typha，同时replicas不能为0 ，否则找不到Typha实例会报连接失败。
+
+#部署
 https://docs.projectcalico.org/getting-started/kubernetes/self-managed-onprem/onpremises
 
+#Install Calico with Kubernetes API datastore, 50 nodes or less
+1.Download the Calico networking manifest for the Kubernetes API datastore.
+curl https://docs.projectcalico.org/manifests/calico.yaml -O
+2.change CALICO_IPV4POOL_CIDR in calico.yaml
+3.Customize the manifest if desired.
+4.kubectl apply -f calico.yaml
+
+#Install Calico with Kubernetes API datastore, more than 50 nodes
+1.Download the Calico networking manifest for the Kubernetes API datastore.
+curl https://docs.projectcalico.org/manifests/calico-typha.yaml -o calico.yaml
+2.change CALICO_IPV4POOL_CIDR in calico.yaml
+3.Modify the replica count to the desired number in the Deployment named, calico-typha.
+``` bash
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: calico-typha
+  ...
+spec:
+  ...
+  replicas: <number of replicas>
 ```
-$ wget https://docs.projectcalico.org/manifests/calico.yaml
+4.Customize the manifest if desired.
+5.kubectl apply -f calico.yaml
+
+#Install Calico with etcd datastore
+1.Download the Calico networking manifest for etcd.
+curl https://docs.projectcalico.org/manifests/calico-etcd.yaml -o calico.yaml
+2.change CALICO_IPV4POOL_CIDR in calico.yaml
+3.In the ConfigMap named, calico-config, set the value of etcd_endpoints to the IP address and port of your etcd server.
+4.Customize the manifest if desired.
+5.kubectl apply -f calico.yaml
+
+
+## calicoctl
+https://github.com/projectcalico/calicoctl
+
+#优化网络模式，调整为BGP模式，为降低局域网网络连接数量，选取两个node作为route reflector
+
+#调整calico模式为BGP
+``` 
+cat << EOF | calicoctl apply -f -
+apiVersion: projectcalico.org/v3
+kind: IPPool
+metadata:
+  name: default-ipv4-ippool
+spec:
+  blockSize: 26
+  cidr: 172.8.0.0/16
+  ipipMode: Never
+  natOutgoing: true
+EOF
 ```
 
-下载完后还需要修改里面定义Pod网络（CALICO_IPV4POOL_CIDR），与前面kubeadm init指定的一样
-
-修改完后应用清单：
-
+#禁用全局Full-mesh
+``` bash
+cat << EOF | calicoctl apply -f -
+apiVersion: projectcalico.org/v3
+kind: BGPConfiguration
+metadata:
+  name: default
+spec:
+ logSeverityScreen: Info
+ nodeToNodeMeshEnabled: false
+ asNumber: 64512
+EOF
 ```
-$ kubectl apply -f calico.yaml
-$ kubectl get pods -n kube-system
+
+#导出节点1和几点2的配置并修改
+``` bash
+kubectl label node gihtg-k8s-master01 route-reflector=true
+
+calicoctl get node gihtg-k8s-master01 -o yaml > rr01.yaml
+
+apiVersion: projectcalico.org/v3
+kind: Node
+metadata:
+  creationTimestamp: null
+  name: gihtg-k8s-master01
+  labels:
+    # 增加标签，将rr标签置为true 。建议在kubectl label 中添加，可以保持一致以免发生歧义。
+    i-am-a-route-reflector: true
+spec:
+  bgp:
+    ipv4Address: 192.168.2.1/24
+    # 增加标签，确保同一个反射簇配置ID一致，即rr01与rr02一致，用于冗余和防环
+    routeReflectorClusterID: 224.0.0.1
+  orchRefs:
+  - nodeName: 192.168.2.1
+    orchestrator: k8s
+
+calicoctl apply -f rr01.yaml
+```
+#建立BGP node 与 Route Reflector 的连接规则
+``` 
+$ cat << EOF | calicoctl create -f -
+kind: BGPPeer
+apiVersion: projectcalico.org/v3
+metadata:
+  name: peer-to-rrs
+spec:
+  # 规则1：普通 bgp node 与 rr 建立连接
+  nodeSelector: !has(i-am-a-route-reflector)
+  peerSelector: has(i-am-a-route-reflector)
+
+---
+kind: BGPPeer
+apiVersion: projectcalico.org/v3
+metadata:
+  name: rr-mesh
+spec:
+  # 规则2：route reflectors 之间也建立连接
+  nodeSelector: has(i-am-a-route-reflector)
+  peerSelector: has(i-am-a-route-reflector)
+EOF
+```
+#查看bgp连接，及各个节点的路由
+```
+calicoctl node status
+route -n
 ```
 
+## 3.2 Helm
+项目地址: https://github.com/helm/helm
+下载helm客户端: https://get.helm.sh/helm-v3.4.2-linux-amd64.tar.gz
+#安装helm-push plugin
+helm plugin install https://github.com/chartmuseum/helm-push
 
-## 3.2 Kubernetes Dashboard
+## 3.3 CoreDNS
+helm repo add coredns https://coredns.github.io/helm
+helm pull coredns/coredns
+#安装前修改values.yaml中的副本数、clusterip、容忍节点等参数.
+helm install coredns coredns/ -n kube-system
+
+## 3.4 Kubernetes Dashboard
 
 ```
 wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.4/aio/deploy/recommended.yaml
@@ -697,7 +854,7 @@ kubectl config set-context default \
 kubectl config use-context default --kubeconfig=dashboard.kubeconfig
 ```
 
-## 3.3 Metrics Server
+## 3.5 Metrics Server
 https://github.com/kubernetes-sigs/metrics-server
 ```
 #下载manifests
