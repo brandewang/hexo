@@ -408,6 +408,8 @@ openssl genrsa -out dashboard.key 2048
 openssl req -days 36000 -new -out dashboard.csr -key dashboard.key -subj '/CN=k8s-dashboard.corp.gihtg.com'
 openssl x509 -req -in dashboard.csr -signkey dashboard.key -out dashboard.crt
 
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=whoami.gihtg.com"
+
 #验证证书和私钥是否匹配
 diff -eq <(openssl x509 -pubkey -noout -in cert.crt) <(openssl rsa -pubout -in cert.key)
 

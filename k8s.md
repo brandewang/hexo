@@ -582,8 +582,14 @@ rotateCertificates: true
 # 3. Addon
 
 ## k8s addons
-|calico|v3.16.4|
-|dashboard|v2.0.4|
+|name|version|
+|---|---|
+|fannel|v0.13.1-rc1|
+|calico|v3.17.1|
+|helm|v3.4.2|
+|coredns|1.8.0|
+|dashboard|v2.1.0|
+|metrics-server|v0.3.7|
 |ingress-nginx|0.30.0|
 |traefik|v2.0.7|
 
@@ -780,7 +786,6 @@ wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.4/aio/deploy/re
 
 默认Dashboard只能集群内部访问，修改Service为NodePort类型，暴露到外部：
 
-```
 $ vi recommended.yaml
 ```
 kind: Service
@@ -798,7 +803,6 @@ spec:
   selector:
     k8s-app: kubernetes-dashboard
   type: NodePort
-```
 $ kubectl apply -f recommended.yaml
 $ kubectl get pods -n kubernetes-dashboard
 NAME                                         READY   STATUS    RESTARTS   AGE
@@ -887,6 +891,20 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/ngin
 - 删除replicas
 
 ## 4.2 traefik
+#添加helm 仓库
+helm repo add traefik https://helm.traefik.io/traefik
+#下载traefik
+helm pull traefik/traefik
+#修改values
+- Daemonset方式部署
+- 禁用Service
+- 将hostnetwork设置为true
+- 设置nodeSelector: traefik: "true"
+#安装traefik
+helm install traefik traefik/ -n traefik
+#将指定k8s node 添加traefik为true的标签
+kubectl label node gihtg-k8s-node01 traefik-true
+
 
 # 5. Monitor
 
