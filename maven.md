@@ -89,40 +89,64 @@ maven-war-plugin  打包操作
 # -pl
 指定子project(poml.xml中module)
 # -s
-指定配置文件，默认为/usr/local/apache-maven-3.5.2/conf/settings.xml
+指定配置文件，默认为/etc/maven/settings.xml
 配置文件主要用来定义远程仓库或镜像
 ```
 
-#settingx.xml解析
-```bash
-<settings>
- <localRepository>${user.home}/.m2/brande-repository</localRepository>
- <servers>
-  <server>
-    <id>releases</id>
-  </server>
-  <server>
-    <id>snapshots</id>
-  </server>
-  <server>
+#settingx.xml
+```
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                          https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <localRepository>${user.home}/.m2/repository</localRepository>
+  <interactiveMode/>
+  <usePluginRegistry/>
+  <offline/>
+  <pluginGroups/>
+  <servers>
+    <server>
       <id>nexus</id>
-      <username>ops</username>
-      <password>wtRw68U23J0m4784frWAd3H3JpAmkn7</password>
-  </server>
- </servers>
- <proxies></proxies>
+      <username>admin</username>
+      <password>gihtg@123</password>
+    </server>
+  </servers>
   <mirrors>
     <mirror>
-      <name>nexus</name>
       <id>nexus</id>
       <mirrorOf>*</mirrorOf>
-            <url>http://10.28.20.102:8081/repository/maven-public/</url>
+      <name>nexus</name>
+      <url>http://10.55.22.21:8081/repository/maven-public/</url>
     </mirror>
   </mirrors>
-  <profiles>
-  </profiles>
+  <proxies/>
+  <profiles/>
+  <activeProfiles/>
 </settings>
 ```
+
+#项目pom.xml中设置上传管理，此标签中的内容可被继承，主要区分不同的parent继承不同的内容
+```
+<project>
+...
+        <distributionManagement>
+              <repository>
+                  <id>nexus</id>
+                  <name>nexus-REPOSITORY</name>
+                  <url>http://10.55.22.21:8081/repository/maven-releases/</url>
+              </repository>
+              <snapshotRepository>
+                  <id>nexus</id>
+                  <name>nexus-SNAPSHOTS</name>
+                  <url>http://10.55.22.21:8081/repository/maven-snapshots/</url>
+              </snapshotRepository>
+        </distributionManagement>
+</project>
+```
+
+#各标签作用
+- dependencyManagement: 主要用来申明版本标准，子项目不会作为依赖引入，但会引入版本标准
+- dependencies: 申明实际依赖，冲突时优先最短路径，相同路径长度优先先申明对象，本项目依赖申明优先于父项目.
 
 #mvn 补充
 ```bash
