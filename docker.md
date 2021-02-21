@@ -5,8 +5,6 @@ tags:
 ---
 
 ## image
-
-``` bash
 #镜像比较
 1.alpine
 优点: 体积小,工具较全面
@@ -17,6 +15,14 @@ tags:
 缺点: 体积较大
 
 PS:由于alpine需要重新构建内容较多,暂偏向于使用centos
+
+#获取镜像中的文件
+1. docker save -o k8s-broker-postgresql.tar registry.kube.com/broker/k8s-broker-postgresql:1.0-SNAPSHOT
+2. tar -xvf k8s-broker-postgresql.tar */*.tar
+3. mkdir target
+4. for layer in */layer.tar; do tar -xvf $layer -C target/; done;
+5. ll target/
+
 
 
 #镜像制作
@@ -29,11 +35,10 @@ ENTRYPOINT ["./entrypoint.sh"]
 5.tini(建议使用配合entrypoint启动)
 ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 6.supervisor  需要安装python及相关程序较占空间, 非必要情况不建议使用
-```
 
 ## docker
-``` bash
-相关配置
+
+#相关配置
 #/etc/docker/daemon.json
 {
     "registry-mirrors": ["https://hub-mirror.c.163.com", "https://reg-mirror.qiniu.com"],
@@ -63,4 +68,3 @@ service: 容器内可直接解析名称，达到配置文件中目标主机地�
 #swarm
 ##创建ingress用于service slb
 docker network create --ingress --driver overlay ingress
-```
