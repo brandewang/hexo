@@ -4,13 +4,26 @@ date: 2088-08-08 08:08:08
 tags:
 ---
 
-## url
-``` bash
-#dashboard
-https://grafana.com/dashboards?search=zabbix
+- url:https://grafana.com/dashboards?search=zabbix
+
+服务配置
+```
+mkdir /opt/monitor/grafana
+#grafana.service
+[Unit]
+Description=grafana
+
+[Service]
+ExecStart=/opt/monitor/grafana/bin/grafana-server -homepath=/opt/monitor/grafana
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-## start.sh
+docker部署
 ``` bash
 #!/bin/bash
 docker run -d \
