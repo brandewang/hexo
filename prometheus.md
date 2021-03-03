@@ -76,8 +76,9 @@ global:
   smtp_require_tls: false
 
 # 告警模版
-# templates:
-#   - "template/*.tmpl"
+templates:
+- "template/*.tmpl"
+
 
 route:
   group_by: ['instance'] #对告警进行分组，将标签相同对告警合并为一个通知
