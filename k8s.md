@@ -603,8 +603,9 @@ CNI 二进制程序默认路径： /opt/cni/bin/
 CNI 配置文件默认路径：/etc/cni/net.d
 
 ### flannel
-项目地址：https://github.com/coreos/flannel
-k8s-v1.17+配置清单: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+- 项目地址：https://github.com/coreos/flannel
+- k8s-v1.17+配置清单: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+- 网络模式: hostgateway、vxlan
 
 #更改相关配置
 ```
@@ -771,6 +772,8 @@ route -n
 下载helm客户端: https://get.helm.sh/helm-v3.4.2-linux-amd64.tar.gz
 #安装helm-push plugin
 helm plugin install https://github.com/chartmuseum/helm-push
+#helm env 系统环境变量，包括设置最大revision history
+https://helm.sh/docs/helm/helm/
 
 ## 3.3 CoreDNS
 helm repo add coredns https://coredns.github.io/helm

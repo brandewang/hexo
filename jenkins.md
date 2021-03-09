@@ -20,6 +20,7 @@ docker run -d -e JAVA_OPTS=-Duser.timezone=Asia/Shanghai -v jenkins_home:/var/je
 - Git plugin #git集成插件
 - Maven Intergration plugin #可创建maven项目
 - Timestamper #构建输出时添加时间戳
+- Pipeline Utility Steps #流水线里可使用jdk提供的方法
 
 #agent(slave)
 - 静态agent：手动添加节点，并在节点运行agent注册至master
