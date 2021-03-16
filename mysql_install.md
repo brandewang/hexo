@@ -105,6 +105,19 @@ binlog_cache_size=4m
 sync_binlog=1
 
 
+---
+innodb_flush_log_at_trx_commit：0,1,2
+n = 0（高效，但不安全--无论服务器宕机或者mysql宕机都会丢数据）
+每隔一秒，把事务日志缓存区的数据写到日志文件中，以及把日志文件的数据刷新到磁盘上
+n = 1 （低效，非常安全--都不会丢数据）
+每个事务提交时候，把事务日志从缓存区写到日志文件中，并且，刷新日志文件的数据到磁盘上，优化使用此模式保证数据安全性
+n = 2（高效，但不安全--服务器宕机会丢数据）
+每个事务提交的时候，把事务日志数据从缓存区写到日志文件中，每隔一秒，刷新一次日志文件，但不一定刷新到磁盘上，而是取决于操作系统的调度；
+如何保证事务安全
+- innodb_flush_log_at_trx_commit&&sync_binlog 都设为1
+- 事务要和binlog保证一致性---才不会导致主从不一致
+---
+
 
 max_allowed_packet=32M
 sort_buffer_size=4M
@@ -133,7 +146,7 @@ innodb_buffer_pool_size=2G
 innodb_log_buffer_size=32M
 innodb_log_file_size=512M
 innodb_log_files_in_group=3
-innodb_flush_log_at_trx_commit=2
+innodb_flush_log_at_trx_commit=1
 innodb_flush_method=O_DIRECT
 #thread_concurrency=32
 
