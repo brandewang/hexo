@@ -142,6 +142,36 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
+# Nginx监控 VTS nginx-vts-exporter
+- vts: https://github.com/vozlt/nginx-module-vts
+- nginx-vts-exporter: https://github.com/hnlq715/nginx-vts-exporter
+- grafana dashboard import id: 9913
+
+#二进制部署
+```
+mkdir -p /opt/monitor/nginx-vts-exporter
+cd /opt/monitor/nginx-vts-exporter
+wget https://github.com/hnlq715/nginx-vts-exporter/releases/download/v0.10.3/nginx-vts-exporter-0.10.3.linux-amd64.tar.gz
+cp nginx-vts-exporter-0.10.3.linux-amd64/nginx-vts-exporter .
+
+#nginx-vts-exporter.service
+[Unit]
+Description=nginx-vts-exporter
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/monitor/nginx-vts-exporter/nginx-vts-exporter -nginx.scrape_uri=http://127.0.0.1/status/format/json
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+
+[Install]
+
+WantedBy=multi-user.target
+```
+
+
 
 # Docker容器监控 cAdvisor
 - git:https://github.com/google/cadvisor/
