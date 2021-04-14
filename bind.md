@@ -69,4 +69,26 @@ zone "cephcookbook.com" IN {
 
 ```
 
+docker
+```
+mkdir -p /opt/bind && docker run --name='bind' -d -p 53:53/udp -p 53:53/tcp -p 10000:10000/tcp   -e WEBMIN_ENABLED=true   -v /opt/bind:/data   sameersbn/bind:latest
 
+options {
+        dnssec-enable no;
+        dnssec-validation no;
+        recursion yes;
+        auth-nxdomain no;    # conform to RFC1035
+        allow-transfer {
+             any;
+                };
+        allow-query {
+                any;
+                };
+        forwarders {
+                202.96.209.133;
+                202.96.209.5;
+                8.8.8.8;
+                114.114.114.114;
+                };
+}
+```

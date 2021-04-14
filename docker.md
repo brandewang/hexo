@@ -68,3 +68,11 @@ service: 容器内可直接解析名称，达到配置文件中目标主机地�
 #swarm
 ##创建ingress用于service slb
 docker network create --ingress --driver overlay ingress
+
+#docker-compose
+#Install Latest Stable Docker Compose Release
+COMPOSEVERSION=$(curl -s https://github.com/docker/compose/releases/latest/download 2>&1 | grep -Po [0-9]+\.[0-9]+\.[0-9]+)
+curl -L "https://github.com/docker/compose/releases/download/$COMPOSEVERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+echo "Docker Compose Installation done"

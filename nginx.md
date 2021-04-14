@@ -82,6 +82,8 @@ events {
 ##### Http Section #####
 
 http {
+    vhost_traffic_status_zone;
+    vhost_traffic_status_filter_by_host on;
 
     include         /opt/nginx/conf/mime.types;
     default_type  application/octet-stream;
@@ -156,6 +158,11 @@ http {
         }
         location /wpad.dat{
             return 404;
+        }
+				location /status {
+            vhost_traffic_status_display;
+            vhost_traffic_status_display_format html;
+            vhost_traffic_status off;
         }
     }
     server {
