@@ -677,6 +677,19 @@ curl https://docs.projectcalico.org/manifests/calico-etcd.yaml -o calico.yaml
 3.In the ConfigMap named, calico-config, set the value of etcd_endpoints to the IP address and port of your etcd server.
 4.Customize the manifest if desired.
 5.kubectl apply -f calico.yaml
+PS: 修改calico.yaml中 defaultMode: 0040
+#修改calicoctl直连数据库
+cat > /etc/calico/calicoctl.cfg << EOF
+apiVersion: projectcalico.org/v3
+kind: CalicoAPIConfig
+metadata:
+spec:
+  datastoreType: "etcdv3"
+  etcdEndpoints: "https://10.55.3.41,https://10.55.3.42:2379,https://10.55.3.43:2379"
+  etcdKeyFile: "/opt/etcd/ssl/server-key.pem"
+  etcdCertFile: "/opt/etcd/ssl/server.pem"
+  etcdCACertFile: "/opt/etcd/ssl/ca.pem"
+EOF
 
 
 ## calicoctl
